@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'IndexPage',
@@ -37,86 +37,103 @@ export default defineComponent({
       isListening: false,
       errorMessage: '',
       voiceCommands: {},
+      recognition: null,
     }
   },
   created() {
     this.voiceCommands = {
-      'navegar para home': this.navigateToHome,
-      'abrir menu': this.openMenu,
-      'ativar modo escuro': this.toggleDarkMode,
-      'ativar': this.toggleDarkMode, // Alias for "ativar modo escuro
-      // ... other voice commands ...
+      'navegar para home': () => this.navigateToHome(),
+      'abrir menu': () => this.openMenu(),
+      'ativar modo escuro': () => this.toggleDarkMode(),
+      'ativar': () => this.toggleDarkMode(), // Alias for "ativar modo escuro"
+      'configurações': () => this.navigateToSettings(),
     }
+    console.log('Voice commands initialized:', this.voiceCommands);
+    this.onRecognitionResult = this.onRecognitionResult.bind(this); // Bind the Vue context to the method
   },
   beforeDestroy() {
-  if (this.recognition) {
-    this.recognition.stop();
-  }
-},
-
-
+    if (this.recognition) {
+      this.recognition.stop();
+    }
+  },
   methods: {
     toggleDarkMode() {
-    this.$q.dark.toggle()
-  },
+      console.log('Toggling dark mode');
+      this.$q.dark.toggle()
+    },
     navigateToHome() {
+      console.log('Navigating to home');
       this.$router.push('/')
     },
+    navigateToSettings(){
+      console.log('Navigating to settings');
+      this.$router.push('/settings')
+    },
     initSpeechRecognition() {
-
       if (!('webkitSpeechRecognition' in window)) {
         this.errorMessage = 'Seu navegador não suporta o reconhecimento de voz'
         return
       }
 
-      const recognition = new webkitSpeechRecognition()
-      recognition.lang = 'pt-PT'
-      recognition.continuous = true
-      recognition.interimResults = true
+      this.recognition = new webkitSpeechRecognition()
+      this.recognition.lang = 'pt-PT'
+      this.recognition.continuous = true
+      this.recognition.interimResults = true
 
-      recognition.onstart = () => {
-        this.isListening = true
-      }
+      this.recognition.onstart = () => this.onRecognitionStart();
+      this.recognition.onerror = (event) => this.onRecognitionError(event);
+      this.recognition.onend = () => this.onRecognitionEnd();
+      this.recognition.onresult = this.onRecognitionResult; // Use the method bound to the Vue context
 
-      recognition.onerror = (event) => {
-        this.errorMessage = 'Erro no reconhecimento de voz: ' + event.error
-      }
+      this.recognition.start()
+    },
+    onRecognitionStart() {
+      console.log('Recognition started');
+      this.isListening = true;
+    },
+    onRecognitionError(event) {
+      console.log('Recognition error:', event.error);
+      this.errorMessage = 'Erro no reconhecimento de voz: ' + event.error
+    },
+    onRecognitionEnd() {
+      console.log('Recognition ended');
+      this.isListening = false;
+    },
+    onRecognitionResult(event) {
+    console.log('Recognition result:', event);
+    let interimTranscript = '';
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      if (event.results[i].isFinal) {
+        let transcript = event.results[i][0].transcript.trim();
+        console.log('Final transcript:', transcript);
 
-      recognition.onend = () => {
-        this.isListening = false
-      }
+        // Normalize the transcript: convert to lowercase and remove punctuation
+        transcript = transcript.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
 
-      recognition.onresult = (event) => {
-  let interimTranscript = '';
-  for (let i = event.resultIndex; i < event.results.length; ++i) {
-    if (event.results[i].isFinal) {
-      const transcript = event.results[i][0].transcript;
-      const command = this.voiceCommands[transcript];
-      if (typeof command === 'function') {
-        // Se o valor associado ao comando for uma função, chame-a diretamente
-        command();
-      } else if (typeof command === 'string') {
-        // Se o valor associado ao comando for uma string, é um alias
-        // Então, obtenha o método correspondente ao alias
-        const methodName = this.voiceCommands[command];
-        if (typeof this[methodName] === 'function') {
-          this[methodName]();
-        }
+        // Execute o comando e fornecer feedback de voz
+        this.executeCommand(transcript);
+        break;
+      } else {
+        interimTranscript += event.results[i][0].transcript;
       }
-      recognition.stop();
-      break;
-    } else {
-      interimTranscript += event.results[i][0].transcript;
     }
-  }
-  if (!this.voiceCommand) {
     this.voiceCommand = interimTranscript;
-  }
-}
+  },
+  executeCommand(transcript) {
+    const command = this.voiceCommands[transcript];
+    if (typeof command === 'function') {
+      console.log('Executing command:', command);
+      command.call(this);
 
-
-      recognition.start()
+      // Adicione feedback por voz
+      this.speak(`Comando ${transcript} executado com sucesso.`);
     }
+  },
+  speak(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'pt-PT';
+    window.speechSynthesis.speak(utterance);
+  },
   }
 })
 </script>
