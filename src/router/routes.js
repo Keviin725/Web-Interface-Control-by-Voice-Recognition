@@ -6,7 +6,9 @@ const routes = [
       { path: '/home', component: () => import('pages/IndexPage.vue') },
       { path: '/about', component: () => import('pages/about.vue') },
       { path: '/help', component: () => import('pages/help.vue') },
-      { path: '/settings', component: () => import('pages/settings.vue') }
+      { path: '/settings', component: () => import('pages/settings.vue') },
+      { path: '/chat/:id', component: () => import('pages/ChatPage.vue') },
+      { path: '/chatlist', component: () => import('pages/ChatListPage.vue') },
     ]
   },
 

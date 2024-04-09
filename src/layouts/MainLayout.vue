@@ -31,6 +31,14 @@
         Inicio
       </q-item-section>
     </q-item>
+    <q-item clickable v-ripple to="/chatlist" active-class="bg-primary">
+      <q-item-section avatar>
+        <q-icon name="chat" />
+      </q-item-section>
+      <q-item-section>
+        Chat
+      </q-item-section>
+    </q-item>
     <q-item clickable v-ripple to="/settings" active-class="bg-primary">
       <q-item-section avatar>
         <q-icon name="settings" />
