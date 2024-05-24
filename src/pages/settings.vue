@@ -17,6 +17,7 @@
           :options="languageOptions"
           label="Idioma"
           color="primary"
+          @input="changeLanguage"
         />
         <q-slider
           v-model="sensitivity"
@@ -38,8 +39,11 @@ export default defineComponent({
   name: 'SettingsPage',
   data() {
     return {
-      language: 'English',
-      languageOptions: ['English', 'Spanish', 'French', 'German', 'Italian'],
+      currentLanguage: navigator.language || 'pt-PT',
+      languageOptions: [
+        { label: 'Português', value: 'pt-PT' },
+        { label: 'Inglês', value: 'en-US' },
+      ],
       sensitivity: 50
     }
   },
@@ -61,7 +65,10 @@ export default defineComponent({
   methods: {
     toggleDarkMode(value) {
       this.$q.dark.set(value)
-    }
+    },
+    changeLanguage() {
+      this.initSpeechRecognition();
+    },
   }
 })
 </script>

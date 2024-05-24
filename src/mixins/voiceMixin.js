@@ -19,6 +19,7 @@ export const voiceMixin = defineComponent({
       "navegar para home": () => this.navigateToHome(),
       "abrir menu": () => this.openMenu(),
       "ativar modo escuro": () => this.toggleDarkMode(),
+      'qual é a previsão do tempo':() => this.getWeather(),
       ativar: () => this.toggleDarkMode(), // Alias for "ativar modo escuro"
       configurações: () => this.navigateToSettings(),
     };
@@ -31,6 +32,13 @@ export const voiceMixin = defineComponent({
     }
   },
   methods: {
+    async getWeather() {
+      const response = await fetch(`http://api.openweathermap.org/data/2.5/weather?q=SaoPaulo&appid=YOUR_API_KEY&lang=pt&units=metric`);
+      const data = await response.json();
+      const temperature = data.main.temp;
+      const description = data.weather[0].description;
+      this.speak(`A temperatura atual é de ${temperature} graus Celsius. ${description}`);
+    },
     addCustomVoiceCommand(command, action){
       this.userVoiceCommands[command] = action
     },
@@ -70,10 +78,10 @@ export const voiceMixin = defineComponent({
       }
       // Include user's custom voice commands when initializing voice commands
       this.voiceCommands = { ...this.voiceCommands, ...this.userVoiceCommands };
-      
+
       this.recognition = new webkitSpeechRecognition();
-      // this.recognition.lang = navigator.language || 'pt-PT'; // Use the browser's language
-      this.recognition.lang = "pt-PT";
+      // Use the browser's language
+      this.recognition.lang = navigator.language || 'pt-PT';
       this.recognition.continuous = true;
       this.recognition.interimResults = true;
 
@@ -84,32 +92,33 @@ export const voiceMixin = defineComponent({
 
       this.recognition.start();
     },
+
     onRecognitionStart() {
       console.log("Recognition started");
       this.isListening = true;
     },
+
     onRecognitionError(event) {
       console.log("Recognition error:", event.error);
       this.errorMessage = "Erro no reconhecimento de voz: " + event.error;
     },
+
     onRecognitionEnd() {
       console.log("Recognition ended");
       this.isListening = false;
     },
+
+    speak(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = this.currentLanguage;
+      window.speechSynthesis.speak(utterance);
+    },
+
     onRecognitionResult(event) {
-      console.log("Recognition result:", event);
-      let interimTranscript = "";
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
+      let interimTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
-          let transcript = event.results[i][0].transcript.trim();
-          console.log("Final transcript:", transcript);
-
-          // Normalize the transcript: convert to lowercase and remove punctuation
-          transcript = transcript
-            .toLowerCase()
-            .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-
-          // Execute o comando e fornecer feedback de voz
+          const transcript = event.results[i][0].transcript.trim();
           this.executeCommand(transcript);
           break;
         } else {
@@ -118,27 +127,22 @@ export const voiceMixin = defineComponent({
       }
       this.voiceCommand = interimTranscript;
     },
+
     executeCommand(transcript) {
-      const command = this.voiceCommands[transcript];
-      if (typeof command === "function") {
-        console.log("Executing command:", command);
-        command.call(this);
-
-        // Adicione feedback por voz
+      const commandFunction = this.voiceCommands[transcript];
+      if (typeof commandFunction === "function") {
+        console.log("Executing command:", transcript);
+        commandFunction.call(this);
         this.speak(`Comando ${transcript} executado com sucesso.`);
-
         this.recognition.stop();
       }
     },
-    speak(text) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "pt-PT";
 
-      // Ajuste a velocidade da fala
-      utterance.rate = 0.8; // Valor menor para fala mais lenta, valor maior para fala mais rápida
-
-      window.speechSynthesis.speak(utterance);
+    onRecognitionError(event) {
+      console.error('Error occurred in recognition: ' + event.error);
+      this.speak(`Ocorreu um erro: ${event.error}`);
     },
+
     startSpeechToText() {
       this.initSpeechRecognition();
       this.recognition.onresult = event => {
