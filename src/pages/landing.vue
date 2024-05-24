@@ -5,20 +5,21 @@
     <q-page-container>
       <!-- Hero Section -->
       <section class="q-mb-lg text-center">
-        <h1 class="text-h4">Enhance your interface with voice.</h1>
+        <h1 class="text-h3 text-bold">Enhance your interface with voice.</h1>
         <p>Experience hands-free navigation and control.</p>
-        <q-btn label="Activate now" color="orange-8" class="q-mr-md full-width" />
+        <q-btn label="Activate now" color="orange-7" class="q-mr-md full-width" />
         <q-btn label="Explore commands" color="white" class="text-black full-width"/>
+        <img src="/image-1.png" alt="Feature Image" />
       </section>
 
         <!-- Features Section -->
         <section class="q-mb-lg">
           <q-card flat bordered class="q-pa-md bg-dark text-center">
             <q-card-section>
-              <img src="/image-1.png" alt="Feature Image" />
+              <img src="/image-3.png" alt="Feature Image" />
               <h2 class="text-h5 q-mt-md">Introducing innovative feature</h2>
-              <p>Discover the power of voice commands.</p>
-              <q-btn label="Activate now" color="white" class="text-black full-width" />
+              <p>Empowering users <br> with voice commands technology</p>
+              <q-btn label="Activate now" color="orange-7" class="text-black full-width" />
             </q-card-section>
           </q-card>
         </section>
@@ -34,6 +35,17 @@
             </q-card-section>
           </q-card>
         </section>
+        <!-- Your Voice Section -->
+        <section class="q-mb-lg">
+          <q-card flat bordered class="q-pa-md bg-dark text-center">
+            <q-card-section>
+              <h2 class="text-h5 q-mt-md">Voice control at your fingertips</h2>
+              <p>Efficient tool that revolutionizes interaction. Optimize your workflow with personalized voice commands. Experience the future of interface control.</p>
+              <q-btn label="Get started" color="white" class="text-black" />
+
+            </q-card-section>
+          </q-card>
+        </section>
 
         <!-- Voice Community Section -->
         <section class="q-mb-lg">
@@ -45,7 +57,7 @@
                 <li>Receive a tailored voice command package.</li>
                 <li>Voilà! Your voice-controlled interface is ready.</li>
               </ol>
-              <q-btn label="Join now" color="primary" class="full-width" />
+              <q-btn label="Join now" color="white" class="text-black full-width" />
             </q-card-section>
           </q-card>
         </section>
@@ -61,7 +73,16 @@
           </q-card>
         </section>
 
-
+        <section class="q-mb-lg">
+          <q-card flat bordered class="q-pa-md bg-dark text-center">
+            <q-card-section>
+              <img src="/image-3.png" alt="Feature Image" />
+              <h2 class="text-h3 q-mt-md text-bold">Start using QuasarVoice today</h2>
+              <p>Experience voice control in action</p>
+              <q-btn label="Activate now" color="orange-7" class="text-black full-width" />
+            </q-card-section>
+          </q-card>
+        </section>
 
     </q-page-container>
 
