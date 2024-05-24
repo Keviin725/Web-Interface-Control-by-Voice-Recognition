@@ -33,11 +33,22 @@ export const voiceMixin = defineComponent({
   },
   methods: {
     async getWeather() {
-      const response = await fetch(`http://api.openweathermap.org/data/2.5/weather?q=SaoPaulo&appid=YOUR_API_KEY&lang=pt&units=metric`);
-      const data = await response.json();
-      const temperature = data.main.temp;
-      const description = data.weather[0].description;
-      this.speak(`A temperatura atual é de ${temperature} graus Celsius. ${description}`);
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const response = await fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=4c421c71d265b836f222fde614371d10&lang=pt&units=metric`);
+          const data = await response.json();
+          const temperature = data.main.temp;
+          const description = data.weather[0].description;
+          this.speak(`A temperatura atual é de ${temperature} graus Celsius. ${description}`);
+        }, (error) => {
+          console.error(error);
+          this.speak('Não foi possível obter a sua localização.');
+        });
+      } else {
+        this.speak('Geolocalização não é suportada por este navegador.');
+      }
     },
     addCustomVoiceCommand(command, action){
       this.userVoiceCommands[command] = action
