@@ -12,22 +12,17 @@
         <div class="command-buttons q-mb-lg">
           <q-row gutter-lg>
             <q-col cols="12" sm="6" md="6">
-              <q-btn label="Enable" color="primary" class="command-button q-mb-md full-width" />
+              <q-btn label="Enable" color="warning" class="command-button q-mb-md full-width" />
             </q-col>
             <q-col cols="12" sm="6" md="6">
-              <q-btn label="Edit" color="primary" class="command-button q-mb-md full-width" />
+              <q-btn label="Add custom Command" color="warning" class="command-button q-mb-md full-width" />
+            </q-col>
+
+            <q-col cols="12" sm="6" md="6">
+              <q-btn label="Automate Tasks" color="warning" class="command-button q-mb-md full-width" />
             </q-col>
             <q-col cols="12" sm="6" md="6">
-              <q-btn label="Set Message" color="primary" class="command-button q-mb-md full-width" />
-            </q-col>
-            <q-col cols="12" sm="6" md="6">
-              <q-btn label="Set Reminders" color="primary" class="command-button q-mb-md full-width" />
-            </q-col>
-            <q-col cols="12" sm="6" md="6">
-              <q-btn label="Automate Tasks" color="primary" class="command-button q-mb-md full-width" />
-            </q-col>
-            <q-col cols="12" sm="6" md="6">
-              <q-btn label="Support" color="primary" class="command-button q-mb-md full-width" />
+              <q-btn label="Support" color="warning" class="command-button q-mb-md full-width" />
             </q-col>
           </q-row>
         </div>
@@ -37,10 +32,47 @@
 </template>
 
 <script>
-export default {
-  name: 'SettingsPage'
-}
+import { defineComponent, computed, watch } from 'vue'
+import { useQuasar } from 'quasar'
+
+export default defineComponent({
+  name: 'SettingsPage',
+  data() {
+    return {
+      currentLanguage: navigator.language || 'pt-PT',
+      languageOptions: [
+        { label: 'Português', value: 'pt-PT' },
+        { label: 'Inglês', value: 'en-US' },
+      ],
+      sensitivity: 50
+    }
+  },
+  setup() {
+    const $q = useQuasar()
+    const darkMode = computed({
+      get: () => $q.dark.isActive,
+      set: (value) => $q.dark.set(value)
+    })
+
+    watch(() => $q.dark.isActive, val => {
+      console.log(val ? 'On dark mode' : 'On light mode')
+    })
+
+    return {
+      darkMode
+    }
+  },
+  methods: {
+    toggleDarkMode(value) {
+      this.$q.dark.set(value)
+    },
+    changeLanguage() {
+      this.initSpeechRecognition();
+    },
+  }
+})
 </script>
+
 
 <style scoped>
 .bg-dark {
