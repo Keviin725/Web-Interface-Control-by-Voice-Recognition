@@ -67,24 +67,7 @@
     </q-item>
   </q-list>
 </q-drawer>
-   <!-- Footer Section -->
-   <q-footer class="bg-dark text-white">
-          <q-toolbar>
-            
-            <div>
-              <q-btn flat icon="fab fa-facebook" />
-              <q-btn flat icon="fab fa-twitter" />
-              <q-btn flat icon="fab fa-linkedin" />
-            </div>
-          </q-toolbar>
-          <div class="q-pa-md text-center">
-            <p>© 2024 QuasarVoice. All rights reserved.</p>
-            <p>
-              <a href="#!" class="text-white">Privacy Policy</a> |
-              <a href="#!" class="text-white">Terms of Use</a>
-            </p>
-          </div>
-        </q-footer>
+   
     <q-page-container>
       <router-view />
     </q-page-container>
