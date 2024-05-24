@@ -8,7 +8,8 @@ export const voiceMixin = defineComponent({
       errorMessage: "",
       voiceCommands: {},
       recognition: null,
-      
+      userVoiceCommands: {}
+
     };
   },
   created() {
@@ -30,6 +31,9 @@ export const voiceMixin = defineComponent({
     }
   },
   methods: {
+    addCustomVoiceCommand(command, action){
+      this.userVoiceCommands[command] = action
+    },
 
     sendMessage() {
       if (this.voiceCommand.trim() !== '') {
@@ -58,12 +62,15 @@ export const voiceMixin = defineComponent({
       console.log("Navigating to settings");
       this.$router.push("/settings");
     },
+
     initSpeechRecognition() {
       if (!("webkitSpeechRecognition" in window)) {
         this.errorMessage = "Seu navegador não suporta o reconhecimento de voz";
         return;
       }
-
+      // Include user's custom voice commands when initializing voice commands
+      this.voiceCommands = { ...this.voiceCommands, ...this.userVoiceCommands };
+      
       this.recognition = new webkitSpeechRecognition();
       // this.recognition.lang = navigator.language || 'pt-PT'; // Use the browser's language
       this.recognition.lang = "pt-PT";
