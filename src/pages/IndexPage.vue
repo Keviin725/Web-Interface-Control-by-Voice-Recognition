@@ -1,26 +1,22 @@
 <template>
   <q-page class="flex flex-center">
     <div class="text-center">
-      <p class="text-subtitle1">Mensagem de boas-vindas</p>
-      <div class="q-my-md">
+      <p class="text-h4 q-my-md">Mensagem de boas-vindas</p>
+      <div class="q-my-md commands-container">
         <p class="text-subtitle2">Comandos de voz suportados:</p>
-        <ul>
-          <li v-for="(command, index) in Object.keys(voiceCommands)" :key="index">
-            {{ command }}
-          </li>
-        </ul>
+        <q-list dense bordered>
+          <q-item v-for="(command, index) in Object.keys(voiceCommands)" :key="index">
+            <q-item-section>{{ command }}</q-item-section>
+          </q-item>
+        </q-list>
       </div>
-      <q-btn color="primary" round icon="mic" aria-label="Voice Command" @click="initSpeechRecognition" />
+      <q-btn :color="isListening ? 'secondary' : 'primary'" round icon="mic" aria-label="Voice Command" @click="initSpeechRecognition" />
       <div class="q-my-md">
         <p class="text-subtitle2">Comando de voz: {{ voiceCommand }}</p>
       </div>
 
-      <q-spinner v-if="isListening" color="primary" size="40px" />
-      <q-banner v-if="voiceCommand" class="q-my-md text-positive">
-        <b>Comando de voz reconhecido com sucesso! </b>
-      </q-banner>
-      <q-banner v-if="errorMessage" class="q-my-md" type="negative">
-        {{ errorMessage }}
+      <q-banner v-if="voiceCommand || errorMessage" class="q-my-md" :type="errorMessage ? 'negative' : 'positive'">
+        <b>{{ errorMessage || 'Comando de voz reconhecido com sucesso!' }}</b>
       </q-banner>
     </div>
   </q-page>
@@ -35,3 +31,27 @@ export default defineComponent({
   mixins: [voiceMixin],
 })
 </script>
+
+<style scoped>
+.text-center {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.text-h4 {
+  color: #3f51b5;
+}
+
+.q-btn {
+  margin-top: 20px;
+}
+
+.q-banner {
+  margin-top: 20px;
+}
+
+.commands-container {
+  height: 200px;
+  overflow-y: auto;
+}
+</style>

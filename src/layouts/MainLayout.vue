@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header>
+    <q-header class="bg-dark">
       <q-toolbar>
         <q-btn
           flat
@@ -8,12 +8,12 @@
           round
           icon="menu"
           aria-label="Menu"
+          v-if="!$route.path.includes('landing')"
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title>
-          Nome do Aplicativo
-        </q-toolbar-title>
+        <q-toolbar-title>QuasarVoice</q-toolbar-title>
+        <q-btn flat icon="mic" @click="startVoiceCommand" />
 
         <div v-if="isListening">
           <q-spinner color="primary" size="1em" />
@@ -67,7 +67,24 @@
     </q-item>
   </q-list>
 </q-drawer>
-
+   <!-- Footer Section -->
+   <q-footer class="bg-dark text-white">
+          <q-toolbar>
+            
+            <div>
+              <q-btn flat icon="fab fa-facebook" />
+              <q-btn flat icon="fab fa-twitter" />
+              <q-btn flat icon="fab fa-linkedin" />
+            </div>
+          </q-toolbar>
+          <div class="q-pa-md text-center">
+            <p>© 2024 QuasarVoice. All rights reserved.</p>
+            <p>
+              <a href="#!" class="text-white">Privacy Policy</a> |
+              <a href="#!" class="text-white">Terms of Use</a>
+            </p>
+          </div>
+        </q-footer>
     <q-page-container>
       <router-view />
     </q-page-container>
@@ -75,6 +92,7 @@
 </template>
 
 <script>
+import { route } from 'quasar/wrappers';
 import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
