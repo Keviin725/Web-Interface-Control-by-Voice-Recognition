@@ -68,7 +68,7 @@
   </q-list>
 </q-drawer>
    <!-- Footer Section -->
-   <q-footer reveal class="bg-dark text-white">
+   <!--<q-footer reveal class="bg-dark text-white">
           <q-toolbar>
 
             <div>
@@ -84,7 +84,7 @@
               <a href="#!" class="text-white">Terms of Use</a>
             </p>
           </div>
-        </q-footer>
+        </q-footer> -->
     <q-page-container>
       <router-view />
     </q-page-container>
