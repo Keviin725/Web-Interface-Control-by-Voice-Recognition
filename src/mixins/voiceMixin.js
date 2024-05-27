@@ -1,32 +1,19 @@
 import { defineComponent } from "vue";
+import commands from "../commands";
 
 export const voiceMixin = defineComponent({
   data() {
-
-    const voiceCommands = {
-      "enviar": ()=> this.sendMessage(),
-      "voltar": () => this.back(),
-      "navegar para home": () => this.navigateToHome(),
-      "abrir menu": () => this.openMenu(),
-      "ativar modo escuro": () => this.toggleDarkMode(),
-      "qual é a previsão do tempo":() => this.getWeather(),
-      "ativar": () => this.toggleDarkMode(), // Alias for "ativar modo escuro"
-      "configurações": () => this.navigateToSettings(),
-    }
-
     return {
       voiceCommand: "",
       isListening: false,
       errorMessage: "",
-      voiceCommands,
+      voiceCommands: {},
       recognition: null,
       userVoiceCommands: {}
-
     };
   },
   created() {
-
-    this.voiceCommands,
+    this.initVoiceCommands();
     console.log("Voice commands initialized:", this.voiceCommands);
     this.onRecognitionResult = this.onRecognitionResult.bind(this); // Bind the Vue context to the method
   },
@@ -36,6 +23,12 @@ export const voiceMixin = defineComponent({
     }
   },
   methods: {
+    initVoiceCommands() {
+      this.voiceCommands = commands.reduce((acc, command) => {
+        acc[command.name.toLowerCase()] = command.execute;
+        return acc;
+      }, {});
+    },
     toggleSpeechRecognition() {
       this.isListening = !this.isListening;
       if (this.isListening) {
@@ -44,61 +37,15 @@ export const voiceMixin = defineComponent({
         this.stopSpeechRecognition();
       }
     },
-    async getWeather() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          const response = await fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=4c421c71d265b836f222fde614371d10&lang=pt&units=metric`);
-          const data = await response.json();
-          const temperature = data.main.temp;
-          const description = data.weather[0].description;
-          this.speak(`A temperatura atual é de ${temperature} graus Celsius. ${description}`);
-        }, (error) => {
-          console.error(error);
-          this.speak('Não foi possível obter a sua localização.');
-        });
-      } else {
-        this.speak('Geolocalização não é suportada por este navegador.');
-      }
+    addCustomVoiceCommand(command, action) {
+      this.userVoiceCommands[command] = action;
     },
-    addCustomVoiceCommand(command, action){
-      this.userVoiceCommands[command] = action
-    },
-
-    sendMessage() {
-      if (this.voiceCommand.trim() !== '') {
-        this.messages.push({
-          text: this.voiceCommand,
-          from: 'me'
-        });
-      }
-      this.voiceCommand = '';
-    },
-
-
-    back() {
-      console.log("Going back");
-      this.$router.go(-1);
-    },
-    toggleDarkMode() {
-      console.log("Toggling dark mode");
-      this.$q.dark.toggle();
-    },
-    navigateToHome() {
-      console.log("Navigating to home");
-      this.$router.push("/");
-    },
-    navigateToSettings() {
-      console.log("Navigating to settings");
-      this.$router.push("/settings");
-    },
-
     initSpeechRecognition() {
       if (!("webkitSpeechRecognition" in window)) {
         this.errorMessage = "Seu navegador não suporta o reconhecimento de voz";
         return;
       }
+
       // Include user's custom voice commands when initializing voice commands
       this.voiceCommands = { ...this.voiceCommands, ...this.userVoiceCommands };
 
@@ -115,12 +62,10 @@ export const voiceMixin = defineComponent({
 
       this.recognition.start();
     },
-
     onRecognitionStart() {
       console.log("Recognition started");
       this.isListening = true;
     },
-
     onRecognitionError(event) {
       console.log("Recognition error:", event.error);
       this.errorMessage = "Erro no reconhecimento de voz: " + event.error;
@@ -128,23 +73,20 @@ export const voiceMixin = defineComponent({
     stopSpeechRecognition() {
       this.recognition.stop();
     },
-
     onRecognitionEnd() {
       console.log("Recognition ended");
       this.isListening = false;
     },
-
     speak(text) {
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = this.currentLanguage;
+      utterance.lang = navigator.language || 'pt-PT';
       window.speechSynthesis.speak(utterance);
     },
-
     onRecognitionResult(event) {
       let interimTranscript = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
-          const transcript = event.results[i][0].transcript.trim();
+          const transcript = event.results[i][0].transcript.trim().toLowerCase();
           this.executeCommand(transcript);
           break;
         } else {
@@ -153,22 +95,21 @@ export const voiceMixin = defineComponent({
       }
       this.voiceCommand = interimTranscript;
     },
-
-    executeCommand(transcript) {
+    async executeCommand(transcript) {
       const commandFunction = this.voiceCommands[transcript];
       if (typeof commandFunction === "function") {
         console.log("Executing command:", transcript);
-        commandFunction.call(this);
-        this.speak(`Comando ${transcript} executado com sucesso.`);
+        const result = await commandFunction.call(this);
+        if (result) {
+          this.speak(result);
+        } else {
+          this.speak(`Comando ${transcript} executado com sucesso.`);
+        }
         this.recognition.stop();
+      } else {
+        this.speak(`Comando ${transcript} não encontrado.`);
       }
     },
-
-    onRecognitionError(event) {
-      console.error('Error occurred in recognition: ' + event.error);
-      this.speak(`Ocorreu um erro: ${event.error}`);
-    },
-
     startSpeechToText() {
       this.initSpeechRecognition();
       this.recognition.onresult = event => {
@@ -196,5 +137,5 @@ export const voiceMixin = defineComponent({
         }
       };
     },
-  },
+  }
 });
