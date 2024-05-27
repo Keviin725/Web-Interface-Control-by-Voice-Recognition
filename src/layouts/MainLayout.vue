@@ -8,12 +8,12 @@
           round
           icon="menu"
           aria-label="Menu"
-          v-if="!$route.path.includes('landing')"
+          v-if="!$route.path.includes('/')"
           @click="toggleLeftDrawer"
         />
 
         <q-toolbar-title>QuasarVoice</q-toolbar-title>
-        <q-btn flat icon="mic" @click="startVoiceCommand" />
+        <q-btn flat icon="mic" @click="toggleSpeechRecognition()" />
 
         <div v-if="isListening">
           <q-spinner color="primary" size="1em" />
@@ -94,9 +94,11 @@
 <script>
 import { route } from 'quasar/wrappers';
 import { defineComponent, ref } from 'vue'
+import { voiceMixin } from 'src/mixins/voiceMixin';
 
 export default defineComponent({
   name: 'MainLayout',
+  mixins: [voiceMixin],
   setup() {
     const leftDrawerOpen = ref(false)
 

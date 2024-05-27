@@ -33,7 +33,7 @@
 
       <!-- Action Buttons -->
       <div class="action-buttons q-mb-lg">
-        <q-btn label="Speak" color="warning" class="q-mr-md full-width rounded-button animated-button" icon="mic" />
+        <q-btn :label="isListening ? 'Stop' : 'Speak'" @click="toggleSpeechRecognition()" :color="isListening ? 'red' : 'warning'" class="q-mr-md full-width rounded-button animated-button" icon="mic" />
         <q-btn label="Customize" color="white" text-color="black" class="full-width rounded-button animated-button" icon="settings" />
       </div>
 
@@ -53,15 +53,17 @@
 </template>
 
 <script>
+import { voiceMixin } from 'src/mixins/voiceMixin';
 export default {
+  mixins: [voiceMixin],
   name: 'ProfilePage',
   data() {
     return {
+
       commands: [
         'previsão do tempo',
         'Send message',
         'Hands-free Navigation',
-        '',
         'Play favorite playlist'
       ]
     };

@@ -33,6 +33,14 @@ export const voiceMixin = defineComponent({
     }
   },
   methods: {
+    toggleSpeechRecognition() {
+      this.isListening = !this.isListening;
+      if (this.isListening) {
+        this.initSpeechRecognition();
+      } else {
+        this.stopSpeechRecognition();
+      }
+    },
     async getWeather() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(async (position) => {
@@ -113,6 +121,9 @@ export const voiceMixin = defineComponent({
     onRecognitionError(event) {
       console.log("Recognition error:", event.error);
       this.errorMessage = "Erro no reconhecimento de voz: " + event.error;
+    },
+    stopSpeechRecognition() {
+      this.recognition.stop();
     },
 
     onRecognitionEnd() {
