@@ -1,24 +1,31 @@
 // commands.js
+require('dotenv').config()
 
 export const commands = [
   {
     name: 'Previsão do Tempo',
     description: 'Retorna a previsão do tempo atual para a localização do usuário',
     execute: async () => {
-      const apiKey = 'your_api_key';
-      const city = 'your_city';
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
-
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        return `Weather in ${city}: ${data.weather[0].description}`;
-      } catch (error) {
-        console.error('Error fetching weather data:', error);
-        return 'Não foi possível obter a previsão do tempo.';
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const apiKey = process.env.WEATHER_API_KEY;
+          const response = await fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&lang=pt&units=metric`);
+          const data = await response.json();
+          const temperature = data.main.temp;
+          const description = data.weather[0].description;
+          return `A temperatura atual é de ${temperature} graus Celsius. ${description}`;
+        }, (error) => {
+          console.error(error);
+          return 'Não foi possível obter a sua localização.';
+        });
+      } else {
+        return 'Geolocalização não é suportada por este navegador.';
       }
     }
   },
+
   {
     name: 'Enviar Mensagem',
     description: 'Envia uma mensagem para um contato específico através do WhatsApp',
@@ -52,7 +59,8 @@ export const commands = [
       window.open(url);
     }
   },
-  {
+  /**
+   * {
     name: 'Definir Alarme',
     description: 'Configura um alarme para o horário especificado',
     execute: (time) => {
@@ -60,6 +68,7 @@ export const commands = [
       // Aqui você pode implementar a lógica de configuração de alarme
     }
   },
+
   {
     name: 'Criar Lembrete',
     description: 'Adiciona um lembrete para uma tarefa específica em um determinado horário',
@@ -91,7 +100,7 @@ export const commands = [
       alert(`${action} o dispositivo ${device}`);
       // Aqui você pode implementar a lógica de controle de dispositivos inteligentes
     }
-  },
+  },*/
   {
     name: 'Enviar E-mail',
     description: 'Redige e envia um e-mail para um destinatário específico com o assunto fornecido',
@@ -100,7 +109,8 @@ export const commands = [
       window.open(url);
     }
   },
-  {
+  /**
+   * {
     name: 'Anotar Nota Rápida',
     description: 'Adiciona uma nota rápida com o conteúdo especificado',
     execute: (content) => {
@@ -108,6 +118,7 @@ export const commands = [
       // Aqui você pode implementar a lógica de adição de notas
     }
   },
+   */
   {
     name: 'Consultar Notícias',
     description: 'Exibe as principais notícias do dia',
