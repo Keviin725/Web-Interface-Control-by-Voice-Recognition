@@ -33,8 +33,21 @@
 
       <!-- Action Buttons -->
       <div class="action-buttons q-mb-lg">
-        <q-btn :label="isListening ? 'Stop' : 'Speak'" @click="toggleSpeechRecognition()" :color="isListening ? 'red' : 'warning'" class="q-mr-md full-width rounded-button animated-button" icon="mic" />
-        <q-btn label="Customize" color="white" text-color="black" class="full-width rounded-button animated-button" icon="settings" />
+        <q-btn
+          :label="isListening ? 'Stop' : 'Speak'"
+          @click="initSpeechRecognition"
+          :color="isListening ? 'red' : 'warning'"
+          class="q-mr-md full-width rounded-button animated-button"
+          icon="mic"
+        />
+        <q-btn
+          to="/commands"
+          label="Customize"
+          color="white"
+          text-color="black"
+          class="full-width rounded-button animated-button"
+          icon="settings"
+        />
       </div>
 
       <!-- Command Section -->
@@ -48,6 +61,18 @@
           </q-item>
         </q-list>
       </div>
+
+      <!-- Command Dialog -->
+      <q-dialog position="bottom" v-model="isDialogVisible">
+        <q-card>
+          <q-card-section>
+            <div class="text-h6">Recognized Command</div>
+          </q-card-section>
+          <q-card-section>
+            <p>{{ recognizedCommand }}</p>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
     </div>
   </q-page>
 </template>
@@ -59,7 +84,8 @@ export default {
   name: 'ProfilePage',
   data() {
     return {
-
+      isDialogVisible: false,
+      recognizedCommand: '',
       commands: [
         'previsão do tempo',
         'Send message',
@@ -67,6 +93,25 @@ export default {
         'Play favorite playlist'
       ]
     };
+  },
+  methods: {
+    initSpeechRecognition() {
+      this.isListening = !this.isListening;
+
+      if (this.isListening) {
+        // Simulating speech recognition process
+        setTimeout(() => {
+          this.recognizedCommand = 'Open WhatsApp';
+          this.isDialogVisible = true;
+          this.isListening = false;
+
+          // Hide the dialog after 3 seconds
+          setTimeout(() => {
+            this.isDialogVisible = false;
+          }, 3000);
+        }, 3000);
+      }
+    }
   }
 }
 </script>

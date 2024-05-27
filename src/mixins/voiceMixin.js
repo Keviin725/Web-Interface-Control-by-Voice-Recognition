@@ -2,19 +2,8 @@ import { defineComponent } from "vue";
 
 export const voiceMixin = defineComponent({
   data() {
-    return {
-      voiceCommand: "",
-      isListening: false,
-      errorMessage: "",
-      voiceCommands: {},
-      recognition: null,
-      userVoiceCommands: {}
 
-    };
-  },
-  created() {
-
-    this.voiceCommands = {
+    const voiceCommands = {
       "enviar": ()=> this.sendMessage(),
       "voltar": () => this.back(),
       "navegar para home": () => this.navigateToHome(),
@@ -23,7 +12,21 @@ export const voiceMixin = defineComponent({
       "qual é a previsão do tempo":() => this.getWeather(),
       "ativar": () => this.toggleDarkMode(), // Alias for "ativar modo escuro"
       "configurações": () => this.navigateToSettings(),
+    }
+
+    return {
+      voiceCommand: "",
+      isListening: false,
+      errorMessage: "",
+      voiceCommands,
+      recognition: null,
+      userVoiceCommands: {}
+
     };
+  },
+  created() {
+
+    this.voiceCommands,
     console.log("Voice commands initialized:", this.voiceCommands);
     this.onRecognitionResult = this.onRecognitionResult.bind(this); // Bind the Vue context to the method
   },
