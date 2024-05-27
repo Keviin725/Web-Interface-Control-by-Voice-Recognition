@@ -56,7 +56,7 @@
         <q-list bordered class="commands-list">
           <q-item v-for="(command, index) in commands" :key="index" clickable class="hover-shadow">
             <q-item-section>
-              <q-item-label>{{ command }}</q-item-label>
+              <q-item-label>{{ command.name }}</q-item-label>
             </q-item-section>
           </q-item>
         </q-list>
@@ -79,19 +79,16 @@
 
 <script>
 import { voiceMixin } from 'src/mixins/voiceMixin';
+import commands from '../commands';
 export default {
   mixins: [voiceMixin],
-  name: 'ProfilePage',
+
+  name: 'IndexPage',
   data() {
     return {
       isDialogVisible: false,
       recognizedCommand: '',
-      commands: [
-        'previsão do tempo',
-        'Send message',
-        'Hands-free Navigation',
-        'Play favorite playlist'
-      ]
+      commands,
     };
   },
   methods: {
@@ -101,7 +98,7 @@ export default {
       if (this.isListening) {
         // Simulating speech recognition process
         setTimeout(() => {
-          this.recognizedCommand = 'Open WhatsApp';
+          if (this.voiceCommands[this.recognizedCommand]) {
           this.isDialogVisible = true;
           this.isListening = false;
 
@@ -109,6 +106,7 @@ export default {
           setTimeout(() => {
             this.isDialogVisible = false;
           }, 3000);
+        }
         }, 3000);
       }
     }
