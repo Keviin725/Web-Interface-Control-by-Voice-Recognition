@@ -1,6 +1,11 @@
 <template>
   <q-page class="flex flex-center bg-dark text-white">
     <div class="text-center animated fadeIn">
+      <!-- Top Icon -->
+      <div class="top-icon q-my-lg">
+        <q-icon name="settings" size="40px" color="white" />
+      </div>
+
       <h2 class="text-h4 q-my-md">Customize Commands</h2>
 
       <!-- Commands List Section -->
@@ -24,28 +29,29 @@
       </div>
 
       <!-- Add/Edit Command Dialog -->
-      <q-dialog v-model="isDialogVisible">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6">{{ dialogTitle }}</div>
-          </q-card-section>
-          <q-card-section>
-            <q-input v-model="commandInput" label="Command" outlined />
-          </q-card-section>
-          <q-card-actions align="right">
-            <q-btn flat label="Cancel" color="primary" v-close-popup />
-            <q-btn flat label="Save" color="primary" @click="saveCommand" />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
+<q-dialog v-model="isDialogVisible">
+  <q-card>
+    <q-card-section>
+      <div class="text-h6">{{ dialogTitle }}</div>
+    </q-card-section>
+    <q-card-section>
+      <q-input v-model="commandInput"  color="warning" class="text-white" label="Enter Command" outlined />
+    </q-card-section>
+    <q-card-section>
+      <q-select v-model="actionInput"  color="warning" :options="availableActions" label="Select An Action" outlined />
+    </q-card-section>
+    <q-card-actions align="right">
+      <q-btn flat label="Cancel" color="white" v-close-popup />
+      <q-btn flat label="Save" color="warning" @click="saveCommand" />
+    </q-card-actions>
+  </q-card>
+</q-dialog>
     </div>
   </q-page>
 </template>
 
 <script>
-import { voiceMixin } from 'src/mixins/voiceMixin';
 export default {
-  mixins: [voiceMixin],
   name: 'CustomizeCommandsPage',
   data() {
     return {
@@ -53,6 +59,7 @@ export default {
       dialogTitle: 'Add Command',
       commandInput: '',
       editingIndex: null,
+      availableActions: ['action1', 'action2', 'action3'],
       commands: [
         'previsão do tempo',
         'Send message',
@@ -75,13 +82,11 @@ export default {
       this.isDialogVisible = true;
     },
     saveCommand() {
-      if (this.editingIndex === null) {
-        this.commands.push(this.commandInput);
-      } else {
-        this.commands.splice(this.editingIndex, 1, this.commandInput);
-      }
-      this.isDialogVisible = false;
-    },
+    this.userVoiceCommands[this.commandInput] = this.actionInput;
+    this.commandInput = '';
+    this.actionInput = '';
+    this.isDialogVisible = false;
+  },
     deleteCommand(index) {
       this.commands.splice(index, 1);
     }
@@ -142,5 +147,9 @@ export default {
 
 .rounded-button:hover {
   transform: scale(1.05);
+}
+
+.top-icon {
+  margin-bottom: 20px;
 }
 </style>
