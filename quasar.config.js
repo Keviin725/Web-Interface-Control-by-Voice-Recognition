@@ -7,11 +7,9 @@
 
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
-
+require('dotenv').config()
 
 const { configure } = require('quasar/wrappers');
-
-
 module.exports = configure(function (/* ctx */) {
   return {
 
@@ -48,6 +46,9 @@ module.exports = configure(function (/* ctx */) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
     build: {
+      env:{
+        WEATHER_API_KEY: '4c421c71d265b836f222fde614371d10'
+      },
       target: {
         browser: [ 'es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1' ],
         node: 'node20'
@@ -101,7 +102,9 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: []
+      plugins: [
+        //'@quasar/dotenv'
+      ]
     },
 
     // animations: 'all', // --- includes all animations

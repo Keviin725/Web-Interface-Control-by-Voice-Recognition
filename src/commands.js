@@ -1,6 +1,3 @@
-// commands.js
-require('dotenv').config()
-
 export const commands = [
   {
     name: 'Previsão do Tempo',
