@@ -22,7 +22,13 @@ export const commands = [
       }
     }
   },
-
+  {
+    name: 'Voltar',
+    description: 'Navega para a página anterior',
+    execute: () => {
+      this.$router.back();
+    }
+  },
   {
     name: 'Enviar Mensagem',
     description: 'Envia uma mensagem para um contato específico através do WhatsApp',
