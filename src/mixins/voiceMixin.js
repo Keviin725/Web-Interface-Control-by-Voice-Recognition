@@ -9,7 +9,10 @@ export const voiceMixin = defineComponent({
       errorMessage: "",
       voiceCommands: {},
       recognition: null,
-      userVoiceCommands: {}
+      userVoiceCommands: {},
+      isDialogVisible: false,
+      dialogCommand: "",
+
     };
   },
   created() {
@@ -47,11 +50,12 @@ export const voiceMixin = defineComponent({
       }
 
       // Include user's custom voice commands when initializing voice commands
-      this.voiceCommands = { ...this.voiceCommands, ...this.userVoiceCommands };
+      //this.voiceCommands = { ...this.voiceCommands, ...this.userVoiceCommands };
 
       this.recognition = new webkitSpeechRecognition();
       // Use the browser's language
-      this.recognition.lang = navigator.language || 'pt-PT';
+      //this.recognition.lang = navigator.language || 'pt-PT';
+      this.recognition.lang = 'pt-PT';
       this.recognition.continuous = true;
       this.recognition.interimResults = true;
 
@@ -88,6 +92,13 @@ export const voiceMixin = defineComponent({
         if (event.results[i].isFinal) {
           const transcript = event.results[i][0].transcript.trim().toLowerCase();
           this.executeCommand(transcript);
+          this.dialogCommand = transcript;
+          setTimeout(() => {
+            this.isDialogVisible = true;
+            setTimeout(() => {
+              this.isDialogVisible = false;
+            }, 1000);
+          }, 1000);
           break;
         } else {
           interimTranscript += event.results[i][0].transcript;

@@ -7,8 +7,8 @@
       <section class="q-mb-lg text-center">
         <h1 class="text-h3 text-bold">Enhance your interface with voice.</h1>
         <p>Experience hands-free navigation and control.</p>
-        <q-btn size="20px" label="Activate now" color="warning" class="button-spaced button-rounded q-mr-md full-width" />
-        <q-btn size="20px" label="Explore commands" color="white" class="button-rounded text-black full-width"/>
+        <q-btn size="20px" @click="toggleSpeechRecognition()" label="Activate now" color="warning" class="button-spaced button-rounded q-mr-md full-width" />
+        <q-btn size="20px" to="/commands" label="Explore commands" color="white" class="button-rounded text-black full-width"/>
         <img src="/image-1.png" alt="Feature Image" />
       </section>
 
@@ -91,7 +91,9 @@
 </template>
 
 <script>
+import { voiceMixin } from 'src/mixins/voiceMixin';
 export default {
+  mixins: [voiceMixin],
   methods: {
     startVoiceCommand() {
       console.log("Starting voice command");

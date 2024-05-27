@@ -35,7 +35,7 @@
       <div class="action-buttons q-mb-lg">
         <q-btn
           :label="isListening ? 'Stop' : 'Speak'"
-          @click="initSpeechRecognition"
+          @click="toggleSpeechRecognition()"
           :color="isListening ? 'red' : 'warning'"
           class="q-mr-md full-width rounded-button animated-button"
           icon="mic"
@@ -63,16 +63,16 @@
       </div>
 
       <!-- Command Dialog -->
-      <q-dialog position="bottom" v-model="isDialogVisible">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6">Recognized Command</div>
-          </q-card-section>
-          <q-card-section>
-            <p>{{ recognizedCommand }}</p>
-          </q-card-section>
-        </q-card>
-      </q-dialog>
+<q-dialog position="bottom" v-if="isDialogVisible">
+  <q-card>
+    <q-card-section>
+      <div class="text-h6">Comando Reconhecido</div>
+    </q-card-section>
+    <q-card-section>
+      <p>{{ dialogCommand }}</p>
+    </q-card-section>
+  </q-card>
+</q-dialog>
     </div>
   </q-page>
 </template>
@@ -86,30 +86,12 @@ export default {
   name: 'IndexPage',
   data() {
     return {
-      isDialogVisible: false,
       recognizedCommand: '',
       commands,
     };
   },
   methods: {
-    initSpeechRecognition() {
-      this.isListening = !this.isListening;
 
-      if (this.isListening) {
-        // Simulating speech recognition process
-        setTimeout(() => {
-          if (this.voiceCommands[this.recognizedCommand]) {
-          this.isDialogVisible = true;
-          this.isListening = false;
-
-          // Hide the dialog after 3 seconds
-          setTimeout(() => {
-            this.isDialogVisible = false;
-          }, 3000);
-        }
-        }, 3000);
-      }
-    }
   }
 }
 </script>

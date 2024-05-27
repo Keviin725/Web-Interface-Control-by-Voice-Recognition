@@ -8,7 +8,6 @@
           round
           icon="menu"
           aria-label="Menu"
-          v-if="!$route.path.includes('/')"
           @click="toggleLeftDrawer"
         />
 

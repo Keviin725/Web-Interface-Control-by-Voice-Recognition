@@ -23,10 +23,10 @@ export const commands = [
     }
   },
   {
-    name: 'Voltar',
+    name: 'Back',
     description: 'Navega para a página anterior',
     execute: () => {
-      this.$router.back();
+      this.$router.back(-1);
     }
   },
   {
