@@ -58,10 +58,10 @@ export default {
   data() {
     return {
       commands: [
-        'Open WhatsApp',
-        'Send message to John',
-        'Check new notifications',
-        'Set reminder for meeting',
+        'previsão do tempo',
+        'Send message',
+        'Hands-free Navigation',
+        '',
         'Play favorite playlist'
       ]
     };
