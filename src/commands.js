@@ -126,6 +126,13 @@ export const commands = [
     }
   },
   {
+    name: 'Navegar para',
+    description: 'Navega para uma tela específica do aplicativo',
+    execute: (routeName) => {
+      this.$router.push({ name: routeName });
+    }
+  },
+  {
     name: 'Procurar no Google',
     description: 'Realiza uma pesquisa no Google pelo termo fornecido',
     execute: (term) => {
