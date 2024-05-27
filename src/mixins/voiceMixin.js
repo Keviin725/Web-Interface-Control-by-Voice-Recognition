@@ -12,7 +12,6 @@ export const voiceMixin = defineComponent({
       userVoiceCommands: {},
       isDialogVisible: false,
       dialogCommand: "",
-
     };
   },
   created() {
@@ -50,18 +49,16 @@ export const voiceMixin = defineComponent({
       }
 
       // Include user's custom voice commands when initializing voice commands
-      //this.voiceCommands = { ...this.voiceCommands, ...this.userVoiceCommands };
+      this.voiceCommands = { ...this.voiceCommands, ...this.userVoiceCommands };
 
       this.recognition = new webkitSpeechRecognition();
-      // Use the browser's language
-      //this.recognition.lang = navigator.language || 'pt-PT';
       this.recognition.lang = 'pt-PT';
       this.recognition.continuous = true;
       this.recognition.interimResults = true;
 
-      this.recognition.onstart = () => this.onRecognitionStart();
-      this.recognition.onerror = (event) => this.onRecognitionError(event);
-      this.recognition.onend = () => this.onRecognitionEnd();
+      this.recognition.onstart = this.onRecognitionStart;
+      this.recognition.onerror = this.onRecognitionError;
+      this.recognition.onend = this.onRecognitionEnd;
       this.recognition.onresult = this.onRecognitionResult; // Use the method bound to the Vue context
 
       this.recognition.start();
@@ -83,7 +80,7 @@ export const voiceMixin = defineComponent({
     },
     speak(text) {
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = navigator.language || 'pt-PT';
+      utterance.lang = 'pt-PT';
       window.speechSynthesis.speak(utterance);
     },
     onRecognitionResult(event) {
@@ -93,13 +90,10 @@ export const voiceMixin = defineComponent({
           const transcript = event.results[i][0].transcript.trim().toLowerCase();
           this.executeCommand(transcript);
           this.dialogCommand = transcript;
+          this.isDialogVisible = true; // Show the dialog when a command is final
           setTimeout(() => {
-            this.isDialogVisible = true;
-            setTimeout(() => {
-              this.isDialogVisible = false;
-            }, 1000);
-          }, 1000);
-          break;
+            this.isDialogVisible = false; // Hide the dialog after 5 seconds
+          }, 5000);
         } else {
           interimTranscript += event.results[i][0].transcript;
         }
@@ -120,33 +114,6 @@ export const voiceMixin = defineComponent({
       } else {
         this.speak(`Comando ${transcript} não encontrado.`);
       }
-    },
-    startSpeechToText() {
-      this.initSpeechRecognition();
-      this.recognition.onresult = event => {
-        let interimTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            let transcript = event.results[i][0].transcript.trim();
-            this.voiceCommand = transcript;
-            // Se o comando de voz for "enviar", chame o método sendMessage
-            if (this.voiceCommand === 'enviar') {
-              this.sendMessage();
-            }
-            // Se o comando de voz for "parar", pare o reconhecimento de voz
-            else if (this.voiceCommand.toLowerCase() === 'parar') {
-              this.recognition.stop();
-            }
-            break;
-          } else {
-            interimTranscript += event.results[i][0].transcript;
-          }
-        }
-        // Atribuir interimTranscript a voiceCommand apenas se interimTranscript não estiver vazio
-        if (interimTranscript.trim() !== '') {
-          this.voiceCommand = interimTranscript;
-        }
-      };
     },
   }
 });
