@@ -49,7 +49,7 @@ export const voiceMixin = defineComponent({
       }
 
       // Include user's custom voice commands when initializing voice commands
-      this.voiceCommands = { ...this.voiceCommands, ...this.userVoiceCommands };
+      this.voiceCommands = { ...this.voiceCommands};
 
       this.recognition = new webkitSpeechRecognition();
       this.recognition.lang = 'pt-PT';

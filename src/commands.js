@@ -23,7 +23,7 @@ export const commands = [
     }
   },
   {
-    name: 'Back',
+    name: 'back',
     description: 'Navega para a página anterior',
     execute: () => {
       this.$router.back(-1);
