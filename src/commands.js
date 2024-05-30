@@ -1,8 +1,8 @@
 export const commands = [
   {
-    name: 'Previsão do Tempo',
+    name: 'previsão do tempo.',
     description: 'Retorna a previsão do tempo atual para a localização do usuário',
-    execute: async () => {
+    execute: async function() {
       if (navigator.geolocation) {
         try {
           const position = await new Promise((resolve, reject) =>
@@ -28,117 +28,58 @@ export const commands = [
       }
     }
   },
-
-  /**
-   * {
+  {
     name: 'voltar',
     description: 'Navega para a página anterior',
-    execute: () => {
-      this.$router.back(-1);
+    execute: function() {
+      this.$router.go(-1);
     }
   },
-   */
   {
     name: 'Enviar Mensagem',
     description: 'Envia uma mensagem para um contato específico através do WhatsApp',
-    execute: (contact, message) => {
+    execute: function(contact, message) {
       const url = `https://api.whatsapp.com/send?phone=${contact}&text=${encodeURIComponent(message)}`;
       window.open(url);
     }
   },
-  /**
   {
     name: 'Navegação Hands-Free',
     description: 'Inicia a navegação para um destino específico usando Google Maps',
-    execute: (destination) => {
+    execute: function(destination) {
       const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
       window.open(url);
     }
   },
-
-   *
   {
     name: 'Tocar Playlist Favorita',
     description: 'Reproduz uma playlist de música predefinida no Spotify',
-    execute: () => {
+    execute: function() {
       const playlistId = 'your_playlist_id';
       const url = `https://open.spotify.com/playlist/${playlistId}`;
       window.open(url);
     }
   },
-   */
   {
     name: 'Ligar para um Contato',
     description: 'Realiza uma chamada telefônica para um contato específico',
-    execute: (contact) => {
+    execute: function(contact) {
       const url = `tel:${contact}`;
       window.open(url);
     }
   },
-  /**
-   * {
-    name: 'Definir Alarme',
-    description: 'Configura um alarme para o horário especificado',
-    execute: (time) => {
-      alert(`Alarme definido para ${time}`);
-      // Aqui você pode implementar a lógica de configuração de alarme
-    }
-  },
-
-  {
-    name: 'Criar Lembrete',
-    description: 'Adiciona um lembrete para uma tarefa específica em um determinado horário',
-    execute: (task, time) => {
-      alert(`Lembrete criado: ${task} às ${time}`);
-      // Aqui você pode implementar a lógica de criação de lembrete
-    }
-  },
-  {
-    name: 'Consultar Agenda',
-    description: 'Exibe os compromissos agendados para o dia atual',
-    execute: () => {
-      alert('Consultando agenda...');
-      // Aqui você pode implementar a lógica de consulta da agenda
-    }
-  },
-  {
-    name: 'Abrir Aplicativo',
-    description: 'Abre um aplicativo específico no dispositivo',
-    execute: (app) => {
-      alert(`Abrindo o aplicativo ${app}`);
-      // Aqui você pode implementar a lógica de abertura de aplicativos
-    }
-  },
-  {
-    name: 'Controlar Dispositivos de Casa Inteligente',
-    description: 'Controla dispositivos inteligentes conectados',
-    execute: (device, action) => {
-      alert(`${action} o dispositivo ${device}`);
-      // Aqui você pode implementar a lógica de controle de dispositivos inteligentes
-    }
-  },*/
   {
     name: 'Enviar E-mail',
     description: 'Redige e envia um e-mail para um destinatário específico com o assunto fornecido',
-    execute: (recipient, subject) => {
+    execute: function(recipient, subject) {
       const url = `mailto:${recipient}?subject=${encodeURIComponent(subject)}`;
       window.open(url);
     }
   },
-  /**
-   * {
-    name: 'Anotar Nota Rápida',
-    description: 'Adiciona uma nota rápida com o conteúdo especificado',
-    execute: (content) => {
-      alert(`Nota adicionada: ${content}`);
-      // Aqui você pode implementar a lógica de adição de notas
-    }
-  },
-
   {
     name: 'Consultar Notícias',
     description: 'Exibe as principais notícias do dia',
-    execute: async () => {
+    execute: async function() {
       const apiKey = 'your_news_api_key';
       const url = `https://newsapi.org/v2/top-headlines?country=br&apiKey=${apiKey}`;
 
@@ -158,11 +99,11 @@ export const commands = [
     execute: function(routeName) {
       this.$router.push({ name: routeName });
     }
-  },*/
+  },
   {
     name: 'Procurar no Google',
     description: 'Realiza uma pesquisa no Google pelo termo fornecido',
-    execute: (term) => {
+    execute: function(term) {
       console.log(`Pesquisando o termo: ${term}`);
       const url = `https://www.google.com/search?q=${encodeURIComponent(term)}`;
       console.log(`Abrindo a URL: ${url}`);
@@ -172,7 +113,7 @@ export const commands = [
   {
     name: 'Reproduzir Vídeo no YouTube',
     description: 'Abre e reproduz um vídeo específico no YouTube',
-    execute: (video) => {
+    execute: function(video) {
       const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(video)}`;
       window.open(url);
     }

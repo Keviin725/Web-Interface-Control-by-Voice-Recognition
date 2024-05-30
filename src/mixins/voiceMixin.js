@@ -100,21 +100,23 @@ export const voiceMixin = defineComponent({
       }
       this.voiceCommand = interimTranscript;
     },
-   async executeCommand(transcript) {
-  const commandKey = Object.keys(this.voiceCommands).find(key => transcript.includes(key));
-  const commandFunction = this.voiceCommands[commandKey];
-  if (typeof commandFunction === "function") {
-    console.log("Executing command:", commandKey);
-    const result = await commandFunction.call(this);
-    if (result) {
-      this.speak(result);
-    } else {
-      this.speak(`Comando ${commandKey} executado com sucesso.`);
-    }
-    this.recognition.stop();
-  } else {
-    this.speak(`Comando ${transcript} não encontrado.`);
-  }
-},
+    async executeCommand(transcript) {
+      const commandKey = Object.keys(this.voiceCommands).find(key => transcript.includes(key));
+      const commandFunction = this.voiceCommands[commandKey];
+      if (typeof commandFunction === "function") {
+        console.log("Executing command:", commandKey);
+        // Extract parameters from the transcript
+        const params = transcript.replace(commandKey, '').trim().split(' ');
+        const result = await commandFunction.apply(this, params);
+        if (result) {
+          this.speak(result);
+        } else {
+          this.speak(`Comando ${commandKey} executado com sucesso.`);
+        }
+        this.recognition.stop();
+      } else {
+        this.speak(`Comando ${transcript} não encontrado.`);
+      }
+    },
   }
 });
