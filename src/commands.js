@@ -4,26 +4,32 @@ export const commands = [
     description: 'Retorna a previsão do tempo atual para a localização do usuário',
     execute: async () => {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async (position) => {
+        try {
+          const position = await new Promise((resolve, reject) =>
+            navigator.geolocation.getCurrentPosition(resolve, reject)
+          );
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
           const apiKey = process.env.WEATHER_API_KEY;
           const response = await fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&lang=pt&units=metric`);
           const data = await response.json();
           const temperature = data.main.temp;
+          const feelsLike = data.main.feels_like;
+          const humidity = data.main.humidity;
+          const windSpeed = data.wind.speed;
           const description = data.weather[0].description;
-          return `A temperatura atual é de ${temperature} graus Celsius. ${description}`;
-        }, (error) => {
+          return `A temperatura atual é de ${temperature} graus Celsius, mas a sensação térmica é de ${feelsLike} graus. A umidade é de ${humidity}% e a velocidade do vento é de ${windSpeed} m/s. ${description}`;
+        } catch (error) {
           console.error(error);
           return 'Não foi possível obter a sua localização.';
-        });
+        }
       } else {
         return 'Geolocalização não é suportada por este navegador.';
       }
     }
   },
   {
-    name: 'back',
+    name: 'voltar',
     description: 'Navega para a página anterior',
     execute: () => {
       this.$router.back(-1);
@@ -142,7 +148,7 @@ export const commands = [
   {
     name: 'Navegar para',
     description: 'Navega para uma tela específica do aplicativo',
-    execute: (routeName) => {
+    execute: function(routeName) {
       this.$router.push({ name: routeName });
     }
   },

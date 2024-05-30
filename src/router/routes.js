@@ -1,3 +1,6 @@
+import { createRouter, createWebHistory } from 'vue-router';
+
+var hasMicrophonePermission = false;
 const routes = [
   {
     path: '/',
@@ -14,6 +17,7 @@ const routes = [
     ]
   },
 
+
   // Always leave this as last one,
   // but you can also remove it
   {
@@ -21,5 +25,21 @@ const routes = [
     component: () => import('pages/ErrorNotFound.vue')
   }
 ]
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
+  routes
+});
+
+// Adiciona um guarda de navegação global antes de cada rota
+router.beforeEach((to, from, next) => {
+  if (to.path === '/' && hasMicrophonePermission) {
+    router.push('/home');
+  } else {
+    next();
+  }
+});
+
+// Quando o usuário dá permissão para o microfone, atualiza a variável
+
 
 export default routes
