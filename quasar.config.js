@@ -47,8 +47,9 @@ module.exports = configure(function (/* ctx */) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
     build: {
       env:{
-        NEWS_API_KEY:'pub_45275bde6f121d419829dcb5f13d5c0452994',
-        WEATHER_API_KEY: '4c421c71d265b836f222fde614371d10'
+        OPENAI_API_KEY:'sk-prdsoj-maddDwUladirERAPWghjtrre6gBlbkFJhAWmrP8vKSwrviPkMvAV',
+        NEWS_API_KEY:'pub_45275bde6sdsf121d4198295457jgfsdasd13d5c0452994',
+        WEATHER_API_KEY: '4c421c71d26c5b836f22sdsfdsffdfskswor2fdev614371d10'
       },
       target: {
         browser: [ 'es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1' ],
