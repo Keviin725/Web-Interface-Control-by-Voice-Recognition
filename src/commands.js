@@ -28,13 +28,16 @@ export const commands = [
       }
     }
   },
-  {
+
+  /**
+   * {
     name: 'voltar',
     description: 'Navega para a página anterior',
     execute: () => {
       this.$router.back(-1);
     }
   },
+   */
   {
     name: 'Enviar Mensagem',
     description: 'Envia uma mensagem para um contato específico através do WhatsApp',
@@ -43,6 +46,7 @@ export const commands = [
       window.open(url);
     }
   },
+  /**
   {
     name: 'Navegação Hands-Free',
     description: 'Inicia a navegação para um destino específico usando Google Maps',
@@ -51,6 +55,8 @@ export const commands = [
       window.open(url);
     }
   },
+
+   *
   {
     name: 'Tocar Playlist Favorita',
     description: 'Reproduz uma playlist de música predefinida no Spotify',
@@ -60,6 +66,7 @@ export const commands = [
       window.open(url);
     }
   },
+   */
   {
     name: 'Ligar para um Contato',
     description: 'Realiza uma chamada telefônica para um contato específico',
@@ -127,7 +134,7 @@ export const commands = [
       // Aqui você pode implementar a lógica de adição de notas
     }
   },
-   */
+
   {
     name: 'Consultar Notícias',
     description: 'Exibe as principais notícias do dia',
@@ -151,12 +158,14 @@ export const commands = [
     execute: function(routeName) {
       this.$router.push({ name: routeName });
     }
-  },
+  },*/
   {
     name: 'Procurar no Google',
     description: 'Realiza uma pesquisa no Google pelo termo fornecido',
     execute: (term) => {
+      console.log(`Pesquisando o termo: ${term}`);
       const url = `https://www.google.com/search?q=${encodeURIComponent(term)}`;
+      console.log(`Abrindo a URL: ${url}`);
       window.open(url);
     }
   },
@@ -169,7 +178,5 @@ export const commands = [
     }
   }
 ];
-
-
 
 export default commands;
