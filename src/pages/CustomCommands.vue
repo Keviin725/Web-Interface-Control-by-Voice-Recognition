@@ -18,7 +18,7 @@
             </q-item-section>
             <q-item-section side>
               <q-btn icon="edit" @click="editCommand(index)" />
-              <q-btn icon="delete" color="negative" @click="deleteCommand(index)" />
+              <q-btn icon="delete" color="red" @click="deleteCommand(index)" />
             </q-item-section>
           </q-item>
         </q-list>

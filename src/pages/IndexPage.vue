@@ -105,6 +105,12 @@ export default {
     opacity: 1;
   }
 }
+@media (min-width: 768px) {
+  .text-center {
+    max-width: 375px; /* Tamanho de um iPhone 8, por exemplo */
+    margin: 0 auto; /* Centraliza o conteúdo */
+  }
+}
 
 .animated {
   animation: fadeIn 1s ease-in;
