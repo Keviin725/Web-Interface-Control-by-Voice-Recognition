@@ -29,6 +29,39 @@ export const commands = [
     }
   },
   {
+    name: 'Consultar Notícias',
+    description: 'Exibe as principais notícias do dia',
+    execute: async function() {
+      const apiKey = process.env.NEWS_API_KEY;
+
+      // Obter a localização atual
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+
+      // Obter o país usando um serviço de geocodificação reversa
+      const responseGeo = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=pt`);
+      const dataGeo = await responseGeo.json();
+      const country = dataGeo.countryCode;
+
+      const url = `https://newsdata.io/api/1/news?country=${country}&apiKey=${apiKey}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.articles) {
+          return data.articles.map(article => article.title).join('\n');
+        } else {
+          console.error('Unexpected response from the API:', data);
+          return 'Não foi possível obter as notícias.';
+        }
+      } catch (error) {
+        console.error('Error fetching news:', error);
+        return 'Não foi possível obter as notícias.';
+      }
+    }
+},
+  {
     name: 'Enviar Mensagem para',
     description: 'Envia uma mensagem para um contato específico através do WhatsApp',
     execute: function(contact, message) {
@@ -109,8 +142,8 @@ export const commands = [
       window.open(url);
     }
   },
-  /**
-   * {
+
+    {
     name: 'Enviar E-mail',
     description: 'Redige e envia um e-mail para um destinatário específico com o assunto fornecido',
     execute: function(recipient, subject) {
@@ -118,7 +151,7 @@ export const commands = [
       window.open(url);
     }
   },
-   */
+
 
   {
     name: 'Ligar para',

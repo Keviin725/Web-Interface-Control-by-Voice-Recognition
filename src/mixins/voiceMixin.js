@@ -105,41 +105,36 @@ export const voiceMixin = defineComponent({
       const commandFunction = this.voiceCommands[commandKey];
       if (typeof commandFunction === "function") {
         console.log("Executing command:", commandKey);
-
         // Extract parameters from the transcript
         let params;
         console.log("Transcript:", transcript);
-
-        const removePunctuation = text => text.replace(/[.,!?]$/, '');
-
         if (commandKey === 'enviar mensagem para') {
           const match = transcript.match(/enviar mensagem para (.*?) com a mensagem (.*)/);
           if (match) {
-            params = [removePunctuation(match[1]), removePunctuation(match[2])];
+            params = [match[1], match[2]];
             console.log("Matched params:", params);
-          } else {
-            params = [];
           }
         } else if (commandKey === 'ligar para um contato') {
           const match = transcript.match(/ligar para um contato (.*)/);
           if (match) {
-            params = [removePunctuation(match[1])];
+            params = [match[1]];
             console.log("Matched params:", params);
-          } else {
-            params = [];
           }
-        } else if (commandKey === 'reproduzir vídeo no youtube') {
+        } else if (commandKey === 'reproduzir vídeo no youtube sobre') {
           const match = transcript.match(/reproduzir vídeo no youtube sobre (.*)/);
           if (match) {
-            params = [removePunctuation(match[1])];
+            params = [match[1]];
             console.log("Matched params:", params);
-          } else {
-            params = [];
+          }
+        } else if (commandKey === 'enviar e-mail') {
+          const match = transcript.match(/enviar e-mail para (.*?) com o assunto (.*)/);
+          if (match) {
+            params = [match[1], match[2]];
+            console.log("Matched params:", params);
           }
         } else {
-          params = transcript.replace(commandKey, '').trim().split(' ').map(removePunctuation);
+          params = transcript.replace(commandKey, '').trim().split(' ');
         }
-
         console.log("Function:", commandFunction, "Params:", params);
         const result = await commandFunction.apply(this, params);
         if (result) {
