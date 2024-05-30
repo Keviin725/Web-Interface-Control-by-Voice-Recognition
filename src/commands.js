@@ -1,6 +1,6 @@
 export const commands = [
   {
-    name: 'previsão do tempo.',
+    name: 'Previsão do tempo',
     description: 'Retorna a previsão do tempo atual para a localização do usuário',
     execute: async function() {
       if (navigator.geolocation) {
@@ -29,20 +29,22 @@ export const commands = [
     }
   },
   {
-    name: 'voltar',
-    description: 'Navega para a página anterior',
-    execute: function() {
-      this.$router.go(-1);
-    }
-  },
-  {
-    name: 'Enviar Mensagem',
+    name: 'Enviar Mensagem para',
     description: 'Envia uma mensagem para um contato específico através do WhatsApp',
     execute: function(contact, message) {
-      const url = `https://api.whatsapp.com/send?phone=${contact}&text=${encodeURIComponent(message)}`;
+      const encodedMessage = encodeURIComponent(message);
+      const url = `https://api.whatsapp.com/send?phone=${contact}&text=${encodedMessage}`;
       window.open(url);
     }
-  },
+},
+  /**
+   {
+     name: 'voltar',
+     description: 'Navega para a página anterior',
+     execute: function() {
+       this.$router.go(-1);
+     }
+   },
   {
     name: 'Navegação Hands-Free',
     description: 'Inicia a navegação para um destino específico usando Google Maps',
@@ -51,6 +53,7 @@ export const commands = [
       window.open(url);
     }
   },
+
   {
     name: 'Tocar Playlist Favorita',
     description: 'Reproduz uma playlist de música predefinida no Spotify',
@@ -60,22 +63,8 @@ export const commands = [
       window.open(url);
     }
   },
-  {
-    name: 'Ligar para um Contato',
-    description: 'Realiza uma chamada telefônica para um contato específico',
-    execute: function(contact) {
-      const url = `tel:${contact}`;
-      window.open(url);
-    }
-  },
-  {
-    name: 'Enviar E-mail',
-    description: 'Redige e envia um e-mail para um destinatário específico com o assunto fornecido',
-    execute: function(recipient, subject) {
-      const url = `mailto:${recipient}?subject=${encodeURIComponent(subject)}`;
-      window.open(url);
-    }
-  },
+
+
   {
     name: 'Consultar Notícias',
     description: 'Exibe as principais notícias do dia',
@@ -93,13 +82,15 @@ export const commands = [
       }
     }
   },
-  {
+
+   * {
     name: 'Navegar para',
     description: 'Navega para uma tela específica do aplicativo',
     execute: function(routeName) {
       this.$router.push({ name: routeName });
     }
   },
+   */
   {
     name: 'Procurar no Google',
     description: 'Realiza uma pesquisa no Google pelo termo fornecido',
@@ -117,7 +108,26 @@ export const commands = [
       const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(video)}`;
       window.open(url);
     }
-  }
+  },
+  /**
+   * {
+    name: 'Enviar E-mail',
+    description: 'Redige e envia um e-mail para um destinatário específico com o assunto fornecido',
+    execute: function(recipient, subject) {
+      const url = `mailto:${recipient}?subject=${encodeURIComponent(subject)}`;
+      window.open(url);
+    }
+  },
+   */
+
+  {
+    name: 'Ligar para',
+    description: 'Realiza uma chamada telefônica para um contato específico',
+    execute: function(contact) {
+      const url = `tel:${contact}`;
+      window.open(url);
+    }
+  },
 ];
 
 export default commands;

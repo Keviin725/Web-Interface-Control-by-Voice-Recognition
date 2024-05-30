@@ -49,7 +49,7 @@ export const voiceMixin = defineComponent({
       }
 
       // Include user's custom voice commands when initializing voice commands
-      this.voiceCommands = { ...this.voiceCommands};
+      this.voiceCommands = { ...this.voiceCommands };
 
       this.recognition = new webkitSpeechRecognition();
       this.recognition.lang = 'pt-PT';
@@ -105,8 +105,42 @@ export const voiceMixin = defineComponent({
       const commandFunction = this.voiceCommands[commandKey];
       if (typeof commandFunction === "function") {
         console.log("Executing command:", commandKey);
+
         // Extract parameters from the transcript
-        const params = transcript.replace(commandKey, '').trim().split(' ');
+        let params;
+        console.log("Transcript:", transcript);
+
+        const removePunctuation = text => text.replace(/[.,!?]$/, '');
+
+        if (commandKey === 'enviar mensagem para') {
+          const match = transcript.match(/enviar mensagem para (.*?) com a mensagem (.*)/);
+          if (match) {
+            params = [removePunctuation(match[1]), removePunctuation(match[2])];
+            console.log("Matched params:", params);
+          } else {
+            params = [];
+          }
+        } else if (commandKey === 'ligar para um contato') {
+          const match = transcript.match(/ligar para um contato (.*)/);
+          if (match) {
+            params = [removePunctuation(match[1])];
+            console.log("Matched params:", params);
+          } else {
+            params = [];
+          }
+        } else if (commandKey === 'reproduzir vídeo no youtube') {
+          const match = transcript.match(/reproduzir vídeo no youtube sobre (.*)/);
+          if (match) {
+            params = [removePunctuation(match[1])];
+            console.log("Matched params:", params);
+          } else {
+            params = [];
+          }
+        } else {
+          params = transcript.replace(commandKey, '').trim().split(' ').map(removePunctuation);
+        }
+
+        console.log("Function:", commandFunction, "Params:", params);
         const result = await commandFunction.apply(this, params);
         if (result) {
           this.speak(result);
