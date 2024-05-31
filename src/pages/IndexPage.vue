@@ -50,6 +50,7 @@
         />
       </div>
 
+
       <!-- Command Section -->
       <div class="command-section q-mb-lg">
         <h3 class="text-h6">Commands</h3>
@@ -62,33 +63,32 @@
         </q-list>
       </div>
 
-      <!-- Command Dialog -->
-<q-dialog position="bottom" v-if="isDialogVisible">
-  <q-card>
-    <q-card-section>
-      <div class="text-h6">Comando Reconhecido</div>
-    </q-card-section>
-    <q-card-section>
-      <p>{{ dialogCommand }}</p>
-    </q-card-section>
-  </q-card>
-</q-dialog>
     </div>
   </q-page>
 </template>
 
 <script>
 import { voiceMixin } from 'src/mixins/voiceMixin';
-import commands from '../commands';
+//import ComandResponseComponent from 'src/components/ComandResponseComponent.vue';
+import { useCommandStore } from 'src/stores/commandStore';
 export default {
   mixins: [voiceMixin],
 
   name: 'IndexPage',
   data() {
+    const commandsStore = useCommandStore()
     return {
+      commandsStore,
       recognizedCommand: '',
-      commands,
+      commands:[],
+      commandResponse: null
     };
+  },
+  created(){
+    this.commands = this.commandsStore.commands
+  },
+  components:{
+   // ComandResponseComponent
   },
   methods: {
 
