@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 export const useCommandStore = defineStore('command',{
 
   state: () => ({
+    voiceCommands:{},
     commands : [
       {
         name: 'Previsão do tempo', // Command name
@@ -175,6 +176,8 @@ export const useCommandStore = defineStore('command',{
   }),
 
   actions: {
-
+    setVoiceCommands(commands) {
+      this.voiceCommands = commands;
+    }
   }
 })
