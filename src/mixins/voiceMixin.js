@@ -1,5 +1,5 @@
 import { defineComponent } from "vue"; // Import the defineComponent function from Vue
-import commands from "../commands"; // Import the commands module
+
 import { useCommandStore } from "src/stores/commandStore";
 
 // Define a Vue component using defineComponent
@@ -20,6 +20,7 @@ export const voiceMixin = defineComponent({
   // Lifecycle hook called when the component is created
   created() {
     const commandStore = useCommandStore()
+    this.voiceCommands = commandStore.commands
     commandStore.setVoiceCommands(this.initVoiceCommands()) // Initialize voice commands
     console.log("Voice commands initialized:", this.voiceCommands); // Log the initialized commands
     this.onRecognitionResult = this.onRecognitionResult.bind(this); // Bind the method to the Vue context
@@ -33,6 +34,9 @@ export const voiceMixin = defineComponent({
   methods: {
     // Initialize voice commands from the imported commands module
     initVoiceCommands() {
+      const commandStore = useCommandStore();
+      const commands = commandStore.commands; // Fetch commands from the store
+
       this.voiceCommands = commands.reduce((acc, command) => {
         acc[command.name.toLowerCase()] = command.execute; // Map command names to their execute functions
         return acc;
