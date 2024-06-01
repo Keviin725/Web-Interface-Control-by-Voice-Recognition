@@ -122,58 +122,77 @@ export const voiceMixin = defineComponent({
     },
     // Execute the command based on the transcript
     async executeCommand(transcript) {
-      const commandKey = Object.keys(this.voiceCommands).find(key => transcript.includes(key)); // Find the command key
-      const commandFunction = this.voiceCommands[commandKey]; // Get the command function
-      if (typeof commandFunction === "function") { // Check if the command function is valid
-        console.log("Executing command:", commandKey); // Log the command execution
-        // Extract parameters from the transcript
+      let original = transcript
+      console.log("Original Transcript:", transcript); // Log original transcript
+      transcript = transcript.replace(/\.$/, ''); // Remove the trailing dot from the transcript
+      console.log("Transcript after removing trailing dot:", transcript); // Log transcript after removing trailing dot
+
+      const commandKey = Object.keys(this.voiceCommands).find(key => transcript.includes(key));
+      const commandFunction = this.voiceCommands[commandKey];
+
+      if (typeof commandFunction === "function") {
+        console.log("Executing command:", commandKey);
         let params;
-        console.log("Transcript:", transcript); // Log the transcript
+        console.log("Transcript:", transcript);
+        console.log("Transcript Original:", original);
+
         if (commandKey === 'enviar mensagem para') {
-          const match = transcript.match(/enviar mensagem para (.*?) com a mensagem (.*)/); // Extract parameters for sending message
+          const match = transcript.match(/enviar mensagem para (.*?) com a mensagem (.*)/);
           if (match) {
-            params = [match[1], match[2]]; // Set the parameters
-            console.log("Matched params:", params); // Log the parameters
+            params = [match[1], match[2]];
+            console.log("Matched params:", params);
           }
         } else if (commandKey === 'ligar para um contato') {
-          const match = transcript.match(/ligar para um contato (.*)/); // Extract parameters for calling contact
+          const match = transcript.match(/ligar para um contato (.*)/);
           if (match) {
-            params = [match[1]]; // Set the parameter
-            console.log("Matched params:", params); // Log the parameter
+            params = [match[1]];
+            console.log("Matched params:", params);
           }
         } else if (commandKey === 'reproduzir vídeo no youtube sobre') {
-          const match = transcript.match(/reproduzir vídeo no youtube sobre (.*)/); // Extract parameters for playing video
+          const match = transcript.match(/reproduzir vídeo no youtube sobre (.*)/);
           if (match) {
-            params = [match[1]]; // Set the parameter
-            console.log("Matched params:", params); // Log the parameter
+            params = [match[1]];
+            console.log("Matched params:", params);
           }
         } else if (commandKey === 'enviar e-mail') {
-          const match = transcript.match(/enviar e-mail para (.*?) com o assunto (.*)/); // Extract parameters for sending email
+          const match = transcript.match(/enviar e-mail para (.*?) com o assunto (.*)/);
           if (match) {
-            params = [match[1], match[2]]; // Set the parameters
-            console.log("Matched params:", params); // Log the parameters
+            params = [match[1], match[2]];
+            console.log("Matched params:", params);
           }
-        } else if (commandKey === 'Navegar para') {
-          const match = transcript.match(/Navegar para (.*)/); // Extract parameters for navigation
+        } else if (commandKey === 'navegar para') {
+          const match = transcript.match(/navegar para (.*)/);
           if (match) {
-            let routeName = match[1].trim().replace(/\./g, ''); // Remove all dots // Remove the dot at the end
-            console.log("Matched route:", routeName); // Log the route
-            this.$router.push({ path: routeName }) // Use an object with the 'path' property
+            let routeName = match[1].trim().replace(/\.$/, '');
+            console.log("Matched route:", routeName);
+            this.$router.push({ path: routeName });
+            return;
           }
         } else {
-          params = transcript.replace(commandKey, '').trim().split(' '); // Set default parameters
+          params = transcript.replace(commandKey, '').trim().split(' ');
         }
-        console.log("Function:", commandFunction, "Params:", params); // Log the function and parameters
-        const result = await commandFunction.apply(this, params); // Execute the command function with parameters
+
+        // Remove trailing dots from params
+        params = params.map(param => param.replace(/\.$/, ''));
+        console.log("Params after removing trailing dots:", params); // Log params after removing trailing dots
+
+        console.log("Function:", commandFunction, "Params:", params);
+        const result = await commandFunction.apply(this, params);
+
         if (result) {
-          this.speak(result); // Speak the result
+          this.speak(result);
         } else {
-          this.speak(`Comando ${commandKey} executado com sucesso.`); // Speak the success message
+          this.speak(`Comando ${commandKey} executado com sucesso.`);
         }
-        this.recognition.stop(); // Stop the recognition
+        this.recognition.stop();
       } else {
-        this.speak(`Comando ${transcript} não encontrado.`); // Speak the not found message
+        this.speak(`Comando ${transcript} não encontrado.`);
       }
-    },
+    }
+
+
+
+
+
   }
 });
