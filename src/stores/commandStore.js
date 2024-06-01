@@ -48,13 +48,15 @@ export const useCommandStore = defineStore("command", {
           window.open(url)
         }
       },
-      {
+      /**
+       * {
         name: 'voltar',
         description: 'Navega para a página anterior',
         execute: () => {
           this.$router.back(-1);
         }
       },
+       */
       {
         name: "Abrir câmera",
         description: "Abre a câmera do usuário",

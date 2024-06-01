@@ -19,15 +19,16 @@ export const voiceMixin = defineComponent({
   },
   // Lifecycle hook called when the component is created
   created() {
-    const commandStore = useCommandStore()
-    this.voiceCommands = commandStore.commands
-    commandStore.setVoiceCommands(this.initVoiceCommands()) // Initialize voice commands
+    const commandStore = useCommandStore();
+    this.voiceCommands = commandStore.commands;
+    commandStore.setVoiceCommands(this.initVoiceCommands()); // Initialize voice commands
     console.log("Voice commands initialized:", this.voiceCommands); // Log the initialized commands
     this.onRecognitionResult = this.onRecognitionResult.bind(this); // Bind the method to the Vue context
   },
   // Lifecycle hook called before the component is destroyed
   beforeDestroy() {
-    if (this.recognition) { // Check if recognition is active
+    if (this.recognition) {
+      // Check if recognition is active
       this.recognition.stop(); // Stop speech recognition
     }
   },
@@ -57,7 +58,8 @@ export const voiceMixin = defineComponent({
     },
     // Initialize speech recognition
     initSpeechRecognition() {
-      if (!("webkitSpeechRecognition" in window)) { // Check if the browser supports speech recognition
+      if (!("webkitSpeechRecognition" in window)) {
+        // Check if the browser supports speech recognition
         this.errorMessage = "Seu navegador não suporta o reconhecimento de voz"; // Set error message
         return;
       }
@@ -66,7 +68,7 @@ export const voiceMixin = defineComponent({
       this.voiceCommands = { ...this.voiceCommands };
 
       this.recognition = new webkitSpeechRecognition(); // Create a new speech recognition instance
-      this.recognition.lang = 'pt-PT'; // Set the recognition language
+      this.recognition.lang = "pt-PT"; // Set the recognition language
       this.recognition.continuous = true; // Enable continuous recognition
       this.recognition.interimResults = true; // Enable interim results
 
@@ -99,15 +101,19 @@ export const voiceMixin = defineComponent({
     // Speak the given text using speech synthesis
     speak(text) {
       const utterance = new SpeechSynthesisUtterance(text); // Create a new speech synthesis utterance
-      utterance.lang = 'pt-PT'; // Set the language for the utterance
+      utterance.lang = "pt-PT"; // Set the language for the utterance
       window.speechSynthesis.speak(utterance); // Speak the utterance
     },
     // Handler for recognition results
     onRecognitionResult(event) {
-      let interimTranscript = ''; // Initialize an empty interim transcript
-      for (let i = event.resultIndex; i < event.results.length; i++) { // Loop through the results
-        if (event.results[i].isFinal) { // Check if the result is final
-          const transcript = event.results[i][0].transcript.trim().toLowerCase(); // Get the final transcript
+      let interimTranscript = ""; // Initialize an empty interim transcript
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        // Loop through the results
+        if (event.results[i].isFinal) {
+          // Check if the result is final
+          const transcript = event.results[i][0].transcript
+            .trim()
+            .toLowerCase(); // Get the final transcript
           this.executeCommand(transcript); // Execute the command
           this.dialogCommand = transcript; // Set the dialog command
           this.isDialogVisible = true; // Show the dialog
@@ -122,12 +128,14 @@ export const voiceMixin = defineComponent({
     },
     // Execute the command based on the transcript
     async executeCommand(transcript) {
-      let original = transcript
+      let original = transcript;
       console.log("Original Transcript:", transcript); // Log original transcript
-      transcript = transcript.replace(/\.$/, ''); // Remove the trailing dot from the transcript
+      transcript = transcript.replace(/\.$/, ""); // Remove the trailing dot from the transcript
       console.log("Transcript after removing trailing dot:", transcript); // Log transcript after removing trailing dot
 
-      const commandKey = Object.keys(this.voiceCommands).find(key => transcript.includes(key));
+      const commandKey = Object.keys(this.voiceCommands).find((key) =>
+        transcript.includes(key)
+      );
       const commandFunction = this.voiceCommands[commandKey];
 
       if (typeof commandFunction === "function") {
@@ -135,45 +143,74 @@ export const voiceMixin = defineComponent({
         let params;
         console.log("Transcript:", transcript);
         console.log("Transcript Original:", original);
+        // Lista estática de contatos
+        const contacts = [
+          { name: "américco", number: "868384809" },
+          { name: "marven", number: "844840789" },
+          { name: "kevin", number: "847258725" },
+        ];
 
-        if (commandKey === 'enviar mensagem para') {
-          const match = transcript.match(/enviar mensagem para (.*?) com a mensagem (.*)/);
+        if (commandKey === "enviar mensagem para") {
+          const match = transcript.match(
+            /enviar mensagem para (.*?) com a mensagem (.*)/
+          );
           if (match) {
-            params = [match[1], match[2]];
-            console.log("Matched params:", params);
+            const contactName = match[1];
+            const message = match[2];
+            const contact = contacts.find(
+              (contact) => contact.name === contactName
+            );
+            if (contact) {
+              params = [contact.number, message];
+              console.log("Matched params:", params);
+            } else {
+              console.log(`Contato ${contactName} não encontrado.`);
+            }
           }
-        } else if (commandKey === 'ligar para um contato') {
-          const match = transcript.match(/ligar para um contato (.*)/);
+        } else if (commandKey === "ligar para") {
+          const match = transcript.match(/ligar para (.*)/);
+          if (match) {
+            const contactName = match[1];
+            const contact = contacts.find(
+              (contact) => contact.name === contactName
+            );
+            if (contact) {
+              params = [contact.number];
+              console.log("Matched params:", params);
+            } else {
+              console.log(`Contato ${contactName} não encontrado.`);
+            }
+          }
+        } else if (commandKey === "reproduzir vídeo no youtube sobre") {
+          const match = transcript.match(
+            /reproduzir vídeo no youtube sobre (.*)/
+          );
           if (match) {
             params = [match[1]];
             console.log("Matched params:", params);
           }
-        } else if (commandKey === 'reproduzir vídeo no youtube sobre') {
-          const match = transcript.match(/reproduzir vídeo no youtube sobre (.*)/);
-          if (match) {
-            params = [match[1]];
-            console.log("Matched params:", params);
-          }
-        } else if (commandKey === 'enviar e-mail') {
-          const match = transcript.match(/enviar e-mail para (.*?) com o assunto (.*)/);
+        } else if (commandKey === "enviar e-mail") {
+          const match = transcript.match(
+            /enviar e-mail para (.*?) com o assunto (.*)/
+          );
           if (match) {
             params = [match[1], match[2]];
             console.log("Matched params:", params);
           }
-        } else if (commandKey === 'navegar para') {
+        } else if (commandKey === "navegar para") {
           const match = transcript.match(/navegar para (.*)/);
           if (match) {
-            let routeName = match[1].trim().replace(/\.$/, '');
+            let routeName = match[1].trim().replace(/\.$/, "");
             console.log("Matched route:", routeName);
             this.$router.push({ path: routeName });
             return;
           }
         } else {
-          params = transcript.replace(commandKey, '').trim().split(' ');
+          params = transcript.replace(commandKey, "").trim().split(" ");
         }
 
         // Remove trailing dots from params
-        params = params.map(param => param.replace(/\.$/, ''));
+        params = params.map((param) => param.replace(/\.$/, ""));
         console.log("Params after removing trailing dots:", params); // Log params after removing trailing dots
 
         console.log("Function:", commandFunction, "Params:", params);
@@ -188,11 +225,6 @@ export const voiceMixin = defineComponent({
       } else {
         this.speak(`Comando ${transcript} não encontrado.`);
       }
-    }
-
-
-
-
-
-  }
+    },
+  },
 });
