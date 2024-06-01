@@ -30,7 +30,7 @@ export const useCommandStore = defineStore("command", {
               const city = data.name; // City name
               const country = data.sys.country; // Country code
               //const countryName = await getCountryName(country); // Get the country name
-              this.$emit("command-executed", { type: "weather", data: data });
+
               return `A temperatura atual em ${city}, ${country} é de ${temperature} graus Celsius, com sensação térmica de ${feelsLike} graus Celsius. A umidade relativa do ar é de ${humidity} por cento e a velocidade do vento é de ${windSpeed} metros por segundo. O tempo está ${description}.`; // Return the weather information
             } catch (error) {
               console.error(error); // Log any errors
@@ -40,6 +40,20 @@ export const useCommandStore = defineStore("command", {
             return "Geolocalização não é suportada por este navegador."; // Return a message if geolocation is not supported
           }
         },
+      },
+      {
+        name: 'Navegar para',
+        description: 'Navega para uma tela específica do aplicativo',
+        execute: function(url) {
+          window.open(url)
+        }
+      },
+      {
+        name: 'voltar',
+        description: 'Navega para a página anterior',
+        execute: () => {
+          this.$router.back(-1);
+        }
       },
       {
         name: "Abrir câmera",

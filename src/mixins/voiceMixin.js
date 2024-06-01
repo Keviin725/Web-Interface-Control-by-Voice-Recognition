@@ -153,6 +153,13 @@ export const voiceMixin = defineComponent({
             params = [match[1], match[2]]; // Set the parameters
             console.log("Matched params:", params); // Log the parameters
           }
+        } else if (commandKey === 'Navegar para') {
+          const match = transcript.match(/Navegar para (.*)/); // Extract parameters for navigation
+          if (match) {
+            let routeName = match[1].trim().replace(/\./g, ''); // Remove all dots // Remove the dot at the end
+            console.log("Matched route:", routeName); // Log the route
+            this.$router.push({ path: routeName }) // Use an object with the 'path' property
+          }
         } else {
           params = transcript.replace(commandKey, '').trim().split(' '); // Set default parameters
         }

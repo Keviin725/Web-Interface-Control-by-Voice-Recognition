@@ -31,6 +31,8 @@
         </div>
       </div>
 
+
+
       <!-- Action Buttons -->
       <div class="action-buttons q-mb-lg">
         <q-btn
@@ -69,7 +71,7 @@
 
 <script>
 import { voiceMixin } from 'src/mixins/voiceMixin';
-//import ComandResponseComponent from 'src/components/ComandResponseComponent.vue';
+
 import { useCommandStore } from 'src/stores/commandStore';
 export default {
   mixins: [voiceMixin],
@@ -88,7 +90,7 @@ export default {
     this.commands = this.commandsStore.commands
   },
   components:{
-   // ComandResponseComponent
+
   },
   methods: {
 
