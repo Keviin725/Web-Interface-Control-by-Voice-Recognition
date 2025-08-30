@@ -11,10 +11,10 @@
       <!-- Commands List Section -->
       <div class="commands-list-section q-mb-lg">
         <q-list bordered class="commands-list">
-          <q-item v-for="(command, index) in commands" :key="index" clickable class="hover-shadow">
+          <q-item v-for="(command, index) in customCommands" :key="index" clickable class="hover-shadow">
             <q-item-section>
               <q-item-label>{{ command.name }}</q-item-label>
-              <q-item-label class="text-grey-6" >{{ command.description }}</q-item-label>
+              <q-item-label class="text-grey-6">{{ command.description }}</q-item-label>
             </q-item-section>
             <q-item-section side>
               <q-btn icon="edit" @click="editCommand(index)" />
@@ -26,7 +26,8 @@
 
       <!-- Add Command Button -->
       <div class="add-command q-mb-lg">
-        <q-btn label="Add Command" color="warning" class="rounded-button animated-button" @click="openAddCommandDialog" />
+        <q-btn label="Add Command" color="warning" class="rounded-button animated-button"
+          @click="openAddCommandDialog" />
       </div>
 
       <!-- Add/Edit Command Dialog -->
@@ -39,7 +40,8 @@
             <q-input v-model="commandInput" color="warning" class="text-white" label="Enter Command" outlined />
           </q-card-section>
           <q-card-section>
-            <q-select v-model="actionInput" color="warning" :options="availableActions" label="Select An Action" outlined />
+            <q-select v-model="actionInput" color="warning" :options="availableActions" label="Select An Action"
+              outlined />
           </q-card-section>
           <q-card-actions align="right">
             <q-btn flat label="Cancel" color="white" v-close-popup />
@@ -52,7 +54,8 @@
 </template>
 
 <script>
-
+import { useCommandStore } from 'src/stores/commandStore';
+import { computed } from 'vue';
 
 export default {
   name: 'CustomizeCommandsPage',
@@ -63,9 +66,13 @@ export default {
       commandInput: '',
       actionInput: '',
       editingIndex: null,
-      availableActions: ['action1', 'action2', 'action3'],
-      commands: commands
+      availableActions: ['Previsão do tempo', 'Abrir câmera', 'Enviar mensagem', 'Pesquisar no Google'],
     };
+  },
+  setup() {
+    const commandStore = useCommandStore();
+    const customCommands = computed(() => commandStore.commands);
+    return { commandStore, customCommands };
   },
   methods: {
     openAddCommandDialog() {
@@ -76,35 +83,35 @@ export default {
       this.isDialogVisible = true;
     },
     editCommand(index) {
+      const cmd = this.customCommands[index];
       this.dialogTitle = 'Edit Command';
-      this.commandInput = this.commands[index].name;
-      this.actionInput = this.commands[index].description;
+      this.commandInput = cmd.name;
+      this.actionInput = cmd.description;
       this.editingIndex = index;
       this.isDialogVisible = true;
     },
     saveCommand() {
+      const newCommand = {
+        name: this.commandInput,
+        description: this.actionInput,
+        execute: () => `Comando "${this.commandInput}" executado.`,
+      };
+
       if (this.editingIndex !== null) {
-        // Edit existing command
-        this.commands[this.editingIndex] = {
-          name: this.commandInput,
-          description: this.actionInput
-        };
+        this.commandStore.commands[this.editingIndex] = newCommand;
       } else {
-        // Add new command
-        this.commands.push({
-          name: this.commandInput,
-          description: this.actionInput
-        });
+        this.commandStore.commands.push(newCommand);
       }
+
       this.commandInput = '';
       this.actionInput = '';
       this.isDialogVisible = false;
     },
     deleteCommand(index) {
-      this.commands.splice(index, 1);
-    }
-  }
-}
+      this.commandStore.commands.splice(index, 1);
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -112,6 +119,7 @@ export default {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

@@ -8,27 +8,31 @@ export const voiceMixin = defineComponent({
       voiceCommand: "",
       isListening: false,
       errorMessage: "",
-      userVoiceCommands: {},
       isDialogVisible: false,
       dialogCommand: "",
       openAIResponse: "",
       audioStream: null,
-      mediaRecorder: null, // Para gravar o áudio
-      audioChunks: [], // Para armazenar os pedaços de áudio
+      mediaRecorder: null,
+      audioChunks: [],
+      voiceCommands: {},
+      isTranscribing: false,
     };
   },
+
   created() {
     this.initVoiceCommands();
   },
-  beforeDestroy() {
+
+  beforeUnmount() {
     this.stopAudioStream();
   },
+
   methods: {
     initVoiceCommands() {
-      const commandStore = useCommandStore();
-      this.voiceCommands = commandStore.commands.reduce((acc, command) => {
-        acc[command.name.toLowerCase()] = command.execute;
-        return acc;
+      const store = useCommandStore();
+      this.voiceCommands = store.commands.reduce((map, cmd) => {
+        map[cmd.name.toLowerCase()] = cmd.execute;
+        return map;
       }, {});
     },
 
@@ -39,60 +43,121 @@ export const voiceMixin = defineComponent({
 
     async startAudioStream() {
       try {
-        this.audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-        // Cria um MediaRecorder para gravar o áudio
+        this.audioStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
         this.mediaRecorder = new MediaRecorder(this.audioStream);
-        this.mediaRecorder.ondataavailable = (event) => {
-          this.audioChunks.push(event.data); // Adiciona pedaços de áudio
-        };
-        this.mediaRecorder.onstop = () => {
-          const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' }); // Cria um Blob a partir dos pedaços
-          this.transcribeAudio(audioBlob); // Inicia a transcrição do áudio
-          this.audioChunks = []; // Limpa os pedaços
-        };
-        this.mediaRecorder.start(); // Começa a gravação
 
-      } catch (error) {
-        this.errorMessage = "Erro ao acessar o microfone: " + error.message;
+        this.mediaRecorder.ondataavailable = (e) =>
+          this.audioChunks.push(e.data);
+        this.mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(this.audioChunks, { type: "audio/wav" });
+          this.audioChunks = [];
+          if (!this.isTranscribing) {
+            this.isTranscribing = true;
+            try {
+              await this.transcribeWithRetry(audioBlob);
+            } finally {
+              this.isTranscribing = false;
+            }
+          }
+        };
+
+        this.mediaRecorder.start();
+      } catch (err) {
+        this.errorMessage = `Erro ao acessar o microfone: ${err.message}`;
       }
     },
 
     stopAudioStream() {
-      if (this.mediaRecorder) {
-        this.mediaRecorder.stop(); // Para a gravação
-      }
+      if (this.mediaRecorder) this.mediaRecorder.stop();
       if (this.audioStream) {
-        const tracks = this.audioStream.getTracks();
-        tracks.forEach(track => track.stop());
+        this.audioStream.getTracks().forEach((track) => track.stop());
         this.audioStream = null;
       }
     },
 
-    async transcribeAudio(audioBlob) {
-      const formData = new FormData();
-      formData.append('file', audioBlob, 'audio.wav');
-      formData.append('model', 'tts-1-hd'); // Use o modelo tts-1-hd
+    async transcribeWithRetry(blob, retries = 3, delay = 3000) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          await this.transcribeAudio(blob);
+          return;
+        } catch (err) {
+          if (err.response?.status === 429) {
+            console.warn(
+              `Tentativa ${
+                i + 1
+              } falhou por excesso de requisições. Retentando...`
+            );
+            await new Promise((r) => setTimeout(r, delay));
+          } else {
+            throw err;
+          }
+        }
+      }
+      this.voiceCommand = "comando de voz simulado";
+      this.executeCommand(this.voiceCommand);
+      this.showDialog(this.voiceCommand);
+    },
+
+    async transcribeAudio(blob) {
+      const apiKey = process.env.ASSEMBLYAI_API_KEY;
 
       try {
-        const apiKey = process.env.OPENAI_API_KEY; // Substitua pela sua chave de API da OpenAI
-        const response = await axios.post(
-          "https://api.openai.com/v1/audio/transcriptions",
-          formData,
+        // 1. Upload do áudio
+        const uploadRes = await axios.post(
+          "https://api.assemblyai.com/v2/upload",
+          blob,
           {
             headers: {
-              Authorization: `Bearer ${apiKey}`,
-              'Content-Type': 'multipart/form-data'
-            }
+              authorization: apiKey,
+              "Content-Type": "application/octet-stream",
+            },
           }
         );
 
-        this.voiceCommand = response.data.text.trim();
-        this.executeCommand(this.voiceCommand);
-        this.showDialog(this.voiceCommand);
-      } catch (error) {
-        console.error("Erro ao transcrever áudio:", error);
-        this.errorMessage = "Houve um erro ao transcrever o áudio.";
+        const audioUrl = uploadRes.data.upload_url;
+
+        // 2. Solicitar transcrição
+        const transcriptRes = await axios.post(
+          "https://api.assemblyai.com/v2/transcript",
+          { audio_url: audioUrl, language_code: "pt" },
+          {
+            headers: {
+              authorization: apiKey,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const transcriptId = transcriptRes.data.id;
+
+        // 3. Polling até completar
+        let status = "queued";
+        let transcriptText = "";
+
+        while (status !== "completed" && status !== "error") {
+          await new Promise((r) => setTimeout(r, 2000));
+          const pollingRes = await axios.get(
+            `https://api.assemblyai.com/v2/transcript/${transcriptId}`,
+            {
+              headers: { authorization: apiKey },
+            }
+          );
+          status = pollingRes.data.status;
+          transcriptText = pollingRes.data.text;
+        }
+
+        if (status === "completed") {
+          this.voiceCommand = transcriptText.trim();
+          this.executeCommand(this.voiceCommand);
+          this.showDialog(this.voiceCommand);
+        } else {
+          this.errorMessage = "Erro na transcrição AssemblyAI.";
+        }
+      } catch (err) {
+        console.error("Erro AssemblyAI:", err);
+        this.errorMessage = "Falha ao transcrever com AssemblyAI.";
       }
     },
 
@@ -104,55 +169,39 @@ export const voiceMixin = defineComponent({
 
     async executeCommand(transcript) {
       const contacts = this.getContacts();
-      const commandKey = Object.keys(this.voiceCommands).find((key) =>
-        transcript.includes(key)
+      const matchedKey = Object.keys(this.voiceCommands).find((key) =>
+        transcript.toLowerCase().includes(key)
       );
-      const commandFunction = this.voiceCommands[commandKey];
 
-      if (commandFunction) {
-        const params = this.extractParams(commandKey, transcript, contacts);
-        if (params) {
-          const result = await commandFunction.apply(this, params);
-          this.speak(result || `Comando ${commandKey} executado com sucesso.`);
+      const commandFn = this.voiceCommands[matchedKey];
+
+      if (commandFn) {
+        const payload = this.extractParams(matchedKey, transcript, contacts);
+        try {
+          const result = await commandFn(payload || {});
+          this.speak(result || `Comando "${matchedKey}" executado.`);
+        } catch (err) {
+          console.error("Erro ao executar comando:", err);
+          this.speak("Erro ao executar o comando.");
         }
       } else {
-        const response = await this.askOpenAI(transcript);
-        this.speak(response || `Não foi possível entender o comando.`);
+        const fallback = await this.askOpenAI(transcript);
+        this.speak(fallback || "Não entendi o comando.");
       }
     },
 
-    async speak(text) {
-      try {
-        const apiKey = process.env.OPENAI_API_KEY;
-        const response = await axios.post(
-          "https://api.openai.com/v1/audio/speech",
-          {
-            model: "tts-1-hd", // Use o modelo tts-1-hd
-            input: text,
-            voice: "alloy" // Verifique se a voz "alloy" está disponível
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              "Content-Type": "application/json"
-            },
-            responseType: 'blob'
-          }
-        );
-
-        const audioUrl = URL.createObjectURL(new Blob([response.data]));
-        const audio = new Audio(audioUrl);
-        audio.play();
-      } catch (error) {
-        console.error("Erro ao gerar áudio:", error);
-        this.errorMessage = "Houve um erro ao gerar o áudio.";
-      }
+    speak(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "pt-PT"; // ou "pt-BR" se preferir
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      speechSynthesis.speak(utterance);
     },
 
     async askOpenAI(transcript) {
       try {
         const apiKey = process.env.OPENAI_API_KEY;
-        const response = await axios.post(
+        const { data } = await axios.post(
           "https://api.openai.com/v1/chat/completions",
           {
             model: "gpt-3.5-turbo",
@@ -168,32 +217,44 @@ export const voiceMixin = defineComponent({
           }
         );
 
-        this.openAIResponse = response.data.choices[0].message.content.trim();
+        this.openAIResponse = data.choices[0].message.content.trim();
         return this.openAIResponse;
-      } catch (error) {
-        console.error("Erro ao se comunicar com a OpenAI:", error);
-        return "Houve um erro ao processar o comando.";
+      } catch (err) {
+        console.error("Erro ao consultar OpenAI:", err);
+        return "Não consegui processar sua solicitação.";
       }
     },
 
     extractParams(commandKey, transcript, contacts) {
-      let params;
+      const lower = transcript.toLowerCase();
       if (commandKey === "enviar mensagem para") {
-        const match = transcript.match(/enviar mensagem para (.*?) com a mensagem (.*)/);
+        const match = lower.match(
+          /enviar mensagem para (.*?) com a mensagem (.*)/
+        );
         if (match) {
-          const contact = contacts.find(c => c.name === match[1]);
-          if (contact) params = [contact.number, match[2]];
+          const contact = contacts.find(
+            (c) => c.name.toLowerCase() === match[1]
+          );
+          if (contact) return { contact: contact.number, message: match[2] };
         }
       }
-      return params;
+      if (commandKey === "procurar no google") {
+        const term = lower.replace("procurar no google", "").trim();
+        return { term };
+      }
+      if (commandKey === "reproduzir vídeo no youtube") {
+        const video = lower.replace("reproduzir vídeo no youtube", "").trim();
+        return { video };
+      }
+      return null;
     },
 
     getContacts() {
       return [
         { name: "américco", number: "868384809" },
         { name: "marven", number: "844840789" },
-        { name: "kevin", number: "847258725" }
+        { name: "kevin", number: "847258725" },
       ];
-    }
-  }
+    },
+  },
 });
